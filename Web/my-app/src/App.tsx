@@ -1,5 +1,6 @@
 
 import './App.css'
+import { Home } from './components/Home'
 
 function App() {
  
@@ -9,6 +10,8 @@ function App() {
       <h1>
         My Online Coaching
       </h1>
+      <Home/>
+      
     </>
   )
 }
