@@ -1,26 +1,10 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
+import { IStudents } from "../common/IStudents";
 
-// Define the User interface
-export interface IUser extends Document {
-  rName: string;
-  email: string;
-  password: string;
-  isAdmin: boolean;
-  phone: string;
-  dob: string;
-  pic?: string;
-  isArchived: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-
-  matchPassword(enteredPassword: string): Promise<boolean>;
-}
-
-// Create the User schema
-const userSchemaTS: Schema<IUser> = new mongoose.Schema(
+const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
   {
-    rName: {
+    sName: {
       type: String,
       required: true,
     },
@@ -32,11 +16,6 @@ const userSchemaTS: Schema<IUser> = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-    },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
     },
     phone: {
       type: String,
@@ -58,7 +37,22 @@ const userSchemaTS: Schema<IUser> = new mongoose.Schema(
       required: true,
       default: false,
     },
-    
+    parentEmail: {
+      type: String,
+      required: true,
+    },
+    parentPhone: {
+      type: String,
+      required: true,
+    },
+    class: {
+      type: String,
+      required: true,
+    },  
+    userType: {
+      type: String,
+        required: true,
+    },
   },
   {
     timestamps: true,
@@ -66,7 +60,7 @@ const userSchemaTS: Schema<IUser> = new mongoose.Schema(
 );
 
 // Middleware to hash the password before saving
-userSchemaTS.pre<IUser>("save", async function (next) {
+studentsSchemaTS.pre<IStudents>("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -76,13 +70,13 @@ userSchemaTS.pre<IUser>("save", async function (next) {
 });
 
 // Method to compare entered password with hashed password
-userSchemaTS.methods.matchPassword = async function (
+studentsSchemaTS.methods.matchPassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Create and export the User model
-const UserTS: Model<IUser> = mongoose.model<IUser>("UserTS", userSchemaTS);
+const UserTS: Model<IStudents> = mongoose.model<IStudents>("StudentsTS", studentsSchemaTS);
 
 export default UserTS;

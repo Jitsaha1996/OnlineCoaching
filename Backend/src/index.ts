@@ -28,7 +28,9 @@ dotenv.config();
 connectDb();
 app.use(express.json());
 
-app.use('/api/usersts', userRoutes);
+
+app.use('/api/students/', studentsRoutes);
+app.use('/api/teachers/', techersRoutes);
 // app.use('/api/workouts', workoutRoutes);
 // app.use('/api/busseatdetals', busSeatRoutes);
 // app.use('/api/announcement', announcementRoutes);
