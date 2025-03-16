@@ -45,7 +45,7 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
       type: String,
       required: true,
     },
-    class: {
+    sclass: {
       type: String,
       required: true,
     },  
@@ -77,6 +77,6 @@ studentsSchemaTS.methods.matchPassword = async function (
 };
 
 // Create and export the User model
-const UserTS: Model<IStudents> = mongoose.model<IStudents>("StudentsTS", studentsSchemaTS);
+const StudentTS: Model<IStudents> = mongoose.model<IStudents>("StudentsTS", studentsSchemaTS);
 
-export default UserTS;
+export default StudentTS;

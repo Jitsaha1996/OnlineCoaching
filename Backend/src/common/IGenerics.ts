@@ -9,4 +9,5 @@ export interface IGenerics extends Document {
     createdAt?: Date;
     updatedAt?: Date;
     gender: string;
+    matchPassword(enteredPassword: string): Promise<boolean>;
 }

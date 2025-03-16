@@ -18,6 +18,8 @@ app.use(bodyParser.json({
 const dotenv=require('dotenv');
 import connectDb from './config/db'
 import userRoutes from './routers/userRoutes'
+import studentsRoutes from "./routers/studentsRoutes";
+import teachersRoutes from "./routers/teachersRoutes";
 // const workoutRoutes = require('./routes/workoutRoutes');
 // const busSeatRoutes = require('./routes/busSeatRoutes');
 // const announcementRoutes = require('./routes/announcementRoutes');
@@ -30,7 +32,7 @@ app.use(express.json());
 
 
 app.use('/api/students/', studentsRoutes);
-app.use('/api/teachers/', techersRoutes);
+app.use('/api/teachers/', teachersRoutes);
 // app.use('/api/workouts', workoutRoutes);
 // app.use('/api/busseatdetals', busSeatRoutes);
 // app.use('/api/announcement', announcementRoutes);
