@@ -7,5 +7,5 @@ export interface IStudents extends IGenerics, Document {
     updatedAt?: Date;
     parentEmail: string;
     parentPhone: string;
-    class: string;
+    sclass: string;
 }
