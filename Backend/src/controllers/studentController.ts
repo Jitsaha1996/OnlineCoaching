@@ -49,7 +49,7 @@ export const registerStudents = asyncHandler(async (req: Request, res: Response)
       isArchived: student.isArchived,
       userType: student.userType,
       gender: student.gender,
-      token: jwtToken(student._id),
+      token: jwtToken(student),
       parentEmail: student.parentEmail,
       parentPhone: student.parentPhone,
       sclass: student.sclass
