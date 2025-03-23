@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Login } from "./Login";
 import { About } from "./About";
 import { Home } from "./Home";
 import Header from "./Header";
@@ -12,10 +13,11 @@ interface RouteConfig {
   const routes: RouteConfig[] = [
     { path: '/', element: <Home/> },
     { path: '/about', element: <About /> },
+    { path: '/login', element: <Login /> },
     // { path: '/contact', element: <Contact /> },
     // { path: '/register', element: <Register /> },
     // { path: '/user-details', element: <UserDetails /> },
-    // { path: '/login', element: <Login /> },
+    
     // { path: '/admin-panel', element: <AdminPanel /> },
     // { path: '/seat-details', element: <BusLayout /> },
   ];
