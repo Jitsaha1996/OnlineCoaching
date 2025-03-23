@@ -2,6 +2,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { About } from "./About";
 import { Home } from "./Home";
 import Header from "./Header";
+import { StudentDetails } from "./StudentDetails";
+import Register from "./Register";
 // import { Header } from "./Header";
 
 interface RouteConfig {
@@ -12,6 +14,11 @@ interface RouteConfig {
   const routes: RouteConfig[] = [
     { path: '/', element: <Home/> },
     { path: '/about', element: <About /> },
+    { path: '/student-details', element: <StudentDetails/> },
+    { path: '/register', element: <Register /> },
+    
+    
+    
     // { path: '/contact', element: <Contact /> },
     // { path: '/register', element: <Register /> },
     // { path: '/user-details', element: <UserDetails /> },
