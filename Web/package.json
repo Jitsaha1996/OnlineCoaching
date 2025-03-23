@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.6.1",
+    "browser-image-compression": "^2.0.2",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11"
+  }
+}
