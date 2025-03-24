@@ -62,6 +62,7 @@ const Header: React.FC = () => {
     { text: 'Contact', onClick: () => navigate('/contact') },
     { text: 'Admin', onClick: () => navigate('/admin-panel') },
     { text: 'Login', onClick: () => navigate('/login') },
+
   ];
 
   return (
@@ -77,6 +78,8 @@ const Header: React.FC = () => {
           <NavButton onClick={() => navigate('/login')}>Login</NavButton> 
           <NavButton onClick={() => navigate('/contact')}>Contact</NavButton>
           <NavButton onClick={() => navigate('/admin-panel')}>Admin</NavButton>
+          <NavButton onClick={() => navigate('/register')}>Register</NavButton>
+          
           
           <WelcomeText>Welcome to Online Coaching</WelcomeText>
           
