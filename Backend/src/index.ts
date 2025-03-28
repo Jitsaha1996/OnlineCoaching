@@ -1,5 +1,7 @@
 import express from "express";
 const cors = require('cors');
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
 
 var bodyParser = require('body-parser');
 const app = express();
@@ -31,6 +33,24 @@ connectDb();
 app.use(express.json());
 
 
+
+
+
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Node.js API with Swagger",
+            version: "1.0.0",
+            description: "API documentation for student and teacher management",
+        },
+        servers: [{ url: "http://localhost:5000" }],
+    },
+    apis: ["./src/routers/*.ts"], // Ensure correct relative path
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/students/', studentsRoutes);
 app.use('/api/teachers/', teachersRoutes);
 // app.use('/api/workouts', workoutRoutes);
