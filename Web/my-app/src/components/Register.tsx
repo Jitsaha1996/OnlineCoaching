@@ -182,7 +182,7 @@ const Register: React.FC = () => {
             <Typography variant="h4" gutterBottom>
                 Online Coaching
             </Typography>
-            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <form onSubmit={handleSubmit} style={{ width: '60%' }}>
                 <Box display="flex" flexDirection="column" gap={2}>
                     <TextField
                         fullWidth
