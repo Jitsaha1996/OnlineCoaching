@@ -84,6 +84,98 @@ import {
  *                   example: "jwt_token_here"
  *       400:
  *         description: Bad request, invalid input
+ * /api/students/login:
+ *   post:
+ *     summary: Authenticate student and get token
+ *     description: Logs in a student and returns an authentication token.
+ *     tags:
+ *       - Students
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "1234567890"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *     responses:
+ *       200:
+ *         description: Successful login, returns student details and token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "60b7c3f3b509b734d4ef1a88"
+ *                 sName:
+ *                   type: string
+ *                   example: "Jane Doe"
+ *                 email:
+ *                   type: string
+ *                   example: "jane.doe@example.com"
+ *                 isArchived:
+ *                   type: boolean
+ *                   example: false
+ *                 userType:
+ *                   type: string
+ *                   example: "student"
+ *                 phone:
+ *                   type: string
+ *                   example: "1234567890"
+ *                 token:
+ *                   type: string
+ *                   example: "jwt_token_here"
+ *       401:
+ *         description: Unauthorized, invalid phone or password
+ *       400:
+ *         description: Bad request, missing phone or password
+ * /api/students/forgetPassword:
+ *   put:
+ *     summary: Reset student password
+ *     description: Allows a student to reset their password using their phone number.
+ *     tags:
+ *       - Students
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "1234567890"
+ *               newPassword:
+ *                 type: string
+ *                 example: "NewPassword123"
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "1234567890 updated successfully!"
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *       400:
+ *         description: Bad request, missing phone or password
+ *       404:
+ *         description: Student not found
  */
 // Define routes
 router.route('/register').post(registerStudents);
