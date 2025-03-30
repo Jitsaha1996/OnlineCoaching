@@ -10,6 +10,7 @@ import {
     Select,
     CircularProgress,
     Backdrop,
+    FormHelperText,
 } from '@mui/material';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -259,6 +260,7 @@ const Register: React.FC = () => {
                             name="userType"
                             value={formData.userType}
                             label="UserType"
+                            required
                             onChange={handleChangeSelect}
                         >
                             {userTypeOptions.map((option) => (
@@ -267,6 +269,7 @@ const Register: React.FC = () => {
                                 </MenuItem>
                             ))}
                         </Select>
+                        
                     </FormControl>
                     <TextField
                         fullWidth
