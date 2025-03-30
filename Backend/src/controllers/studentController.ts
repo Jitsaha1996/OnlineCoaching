@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import jwtToken from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
+import { jwtTokenStudent } from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
 import Student from "../models/studentsModel"; // Adjust import path as needed
 
 // Register a new user
 export const registerStudents = asyncHandler(async (req: Request, res: Response) => {
 
-  const { sName, email, password, pic, dob, phone, isArchived, userType, gender, parentEmail, parentPhone, sclass} = req.body;
+  const { sName, email, password, pic, dob, phone, isArchived, userType, gender, parentEmail, parentPhone, sclass } = req.body;
 
   // Check if user already exists
   const studentExist = await Student.findOne({ email });
@@ -49,7 +49,7 @@ export const registerStudents = asyncHandler(async (req: Request, res: Response)
       isArchived: student.isArchived,
       userType: student.userType,
       gender: student.gender,
-      token: jwtToken(student),
+      token: jwtTokenStudent("student", student),
       parentEmail: student.parentEmail,
       parentPhone: student.parentPhone,
       sclass: student.sclass
@@ -97,45 +97,48 @@ export const registerStudents = asyncHandler(async (req: Request, res: Response)
 // });
 
 // // Forget password
-// export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
-//   const { phone, newPassword } = req.body;
+export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
+  const { phone, newPassword } = req.body;
 
-//   const studentExist = await Student.findOne({ phone });
-//   if (!studentExist) {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
+  const studentExist = await Student.findOne({ phone });
+  if (!studentExist) {
+    res.status(404);
+    throw new Error("student not found");
+  }
 
-//   studentExist.password = newPassword; // Update password directly
-//   await studentExist.save();
+  studentExist.password = newPassword; // Update password directly
+  await studentExist.save();
 
-//   res.status(200).json({
-//     message: `${phone} updated successfully!`,
-//     status: "success",
-//     statusCode: 200,
-//   });
-// });
+  res.status(200).json({
+    message: `${phone} updated successfully!`,
+    status: "success",
+    statusCode: 200,
+  });
+});
 
 // // Authenticate user
-// export const authStudents = asyncHandler(async (req: Request, res: Response) => {
-//   const { phone, password } = req.body;
+export const authStudents = asyncHandler(async (req: Request, res: Response) => {
+  const { phone, password } = req.body;
 
-//   const student = await Student.findOne({ phone });
-//   if (student && (await student.matchPassword(password))) {
-//     res.json({
-//       _id: student._id,
-//       sName: student.sName,
-//       email: student.email,
-//     //   isAdmin: student.isAdmin,
-//       isArchived: student.isArchived,
-//       pic: student.pic,
-//       token: jwtToken(student._id),
-//     });
-//   } else {
-//     res.status(401);
-//     throw new Error("Invalid Phone and Password");
-//   }
-// });
+  const student = await Student.findOne({ phone });
+  if (student && (await student.matchPassword(password))) {
+    res.json({
+      _id: student._id,
+      sName: student.sName,
+      email: student.email,
+    //   isAdmin: student.isAdmin,
+      isArchived: student.isArchived,
+      password: student.password,
+      // pic: student.pic,
+      userType:student.userType,
+      phone: student.phone,
+      token: jwtTokenStudent("student", student._id),
+    });
+  } else {
+    res.status(401);
+    throw new Error("Invalid Phone and Password");
+  }
+});
 
 // // Get all users
 // export const getStudentsList = asyncHandler(async (req: any, res: any) => {
