@@ -4,10 +4,11 @@ const router = express.Router();
 // Import functions using ES6 import syntax
 import { 
   registerStudents, 
-  // authStudents, 
+  authStudents, 
   // getStudentsList, 
   // editStudents, 
   // getStudentsByEmail 
+  forgetPasswords
 } from "../controllers/studentController";
 /**
  * @swagger
@@ -88,9 +89,9 @@ import {
 router.route('/register').post(registerStudents);
 // router.route('/').get(getStudentsList);
 // router.route('/edit').put(editStudents);
-// router.route('/login').post(authStudents);
+router.route('/login').post(authStudents);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
-// // router.route('/forgetPassword').put(forgetpasswords);
+router.route('/forgetPassword').put(forgetPasswords);
 // router.get('/email/:email', getStudentsByEmail);
 
 // Export router
