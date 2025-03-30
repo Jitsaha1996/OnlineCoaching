@@ -6,24 +6,36 @@ import {
     Typography,
     Container,
     Paper,
-    Avatar,
-    Grid,
+    styled,
     useTheme,
     CircularProgress,
+    Grid,
 } from '@mui/material';
-import LockIcon from '@mui/icons-material/Lock';
+
 import { useNavigate } from 'react-router-dom';
 import Toaster from '../Utils/Toaster';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStudent } from '../redux/studentsSlice';
 import { RootState } from '../redux/store';
 import { IStudents } from '../common/IStudents';
+const StyledBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing(3),
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[3],
+}));
+
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [ userType, setuserType] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [isForgetPassword, setIsForgetPassword] = useState(false);
@@ -34,6 +46,13 @@ const Login: React.FC = () => {
     const [toasterMessage, setToasterMessage] = useState('');
     const [toasterSeverity, setToasterSeverity] = useState<'success' | 'error'>('success');
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
+    const [formData, setFormData] = useState<any>({
+            password: "",
+            email: "",
+            userType: "",
+            newPassword: "",
+            confirmPassword: ""
+        });
 
     useEffect(() => {
         if (studentsData) {
@@ -74,8 +93,14 @@ const Login: React.FC = () => {
 
             setTimeout(() => {
                 setLoading(false);
-                navigate('/students-details');
+                navigate('/home');
             }, 1500);
+            setFormData({
+                userType: "",
+                password: "",
+                email: ""
+
+            });
 
         } catch (err: any) {
             setError(err.message);
@@ -102,6 +127,11 @@ const Login: React.FC = () => {
                 },
                 body: JSON.stringify({ email, newPassword }),
             });
+            setFormData({
+                newPassword: "",
+                confirmPassword: ""
+
+            });
 
             if (!response.ok) {
                 setToasterMessage("Error updating password");
@@ -127,24 +157,22 @@ const Login: React.FC = () => {
     };
 
     return (
+    <StyledBox>
         <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 4 }}>
             <Paper elevation={6} sx={{ padding: 4, borderRadius: 2, position: 'relative' }}>
                 <Box
-                    sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                        opacity: 0.1,
-                        zIndex: 0,
-                        borderRadius: 2,
-                    }}
-                />
-                <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
-                    <LockIcon />
-                </Avatar>
+                sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    opacity: 0.1,
+                    zIndex: 0,
+                    borderRadius: 2,
+                }}
+                /> 
                 <Typography variant="h5" component="h1" textAlign="center">
                     {isForgetPassword ? 'Reset Password' : 'Login'}
                 </Typography>
@@ -161,7 +189,7 @@ const Login: React.FC = () => {
                                 fullWidth
                                 margin="normal"
                                 variant="outlined"
-                                value={email}
+                                value={formData.email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 disabled={loading}
@@ -176,7 +204,7 @@ const Login: React.FC = () => {
                                 fullWidth
                                 margin="normal"
                                 variant="outlined"
-                                value={newPassword}
+                                value={formData.newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 required
                                 disabled={loading}
@@ -191,7 +219,7 @@ const Login: React.FC = () => {
                                 fullWidth
                                 margin="normal"
                                 variant="outlined"
-                                value={confirmPassword}
+                                value={formData.confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                                 disabled={loading}
@@ -204,11 +232,26 @@ const Login: React.FC = () => {
                     ) : (
                         <>
                             <TextField
+                                label="User Type"
+                                type="text"
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                                value={formData.userType}
+                                onChange={(e) => setuserType(e.target.value)}
+                                required
+                                disabled={loading}
+                                sx={{
+                                    transition: '0.3s',
+                                    '&:hover': { transform: 'scale(1.02)' },
+                                }}
+                            />
+                            <TextField
                                 label="Email"
                                 fullWidth
                                 margin="normal"
                                 variant="outlined"
-                                value={email}
+                                value={formData.email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 disabled={loading}
@@ -223,7 +266,7 @@ const Login: React.FC = () => {
                                 fullWidth
                                 margin="normal"
                                 variant="outlined"
-                                value={password}
+                                value={formData.password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={loading}
@@ -268,9 +311,9 @@ const Login: React.FC = () => {
                                     Reset
                                 </Button>
                             </Typography>
-                        <Typography variant="body2">
-                        Don't have an account?{' '}
-                        <Button onClick={() => navigate('/register')} color="primary">
+                            <Typography variant="body2">
+                                Don't have an account?{' '}
+                            <Button onClick={() => navigate('/register')} color="primary">
                             Register
                         </Button>
                     </Typography>
@@ -280,6 +323,7 @@ const Login: React.FC = () => {
                         )}
                     </Grid>
                 </Grid>
+              
             </Paper>
             <Toaster
                 open={toasterOpen}
@@ -288,6 +332,7 @@ const Login: React.FC = () => {
                 onClose={handleCloseToaster}
             />
         </Container>
+    </StyledBox>
     );
 };
 
