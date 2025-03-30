@@ -11,7 +11,12 @@ import {
     CircularProgress,
     Backdrop,
 } from '@mui/material';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useDispatch, useSelector } from 'react-redux';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
@@ -31,14 +36,66 @@ const StyledBox = styled(Box)(({ theme }) => ({
     padding: theme.spacing(4),
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
-    transition: 'transform 0.3s ease',
+    // transition: 'transform 0.3s ease',
+    // '&:hover': {
+    //     transform: 'scale(1.02)',
+    //     boxShadow: theme.shadows ? (theme.shadows as string[])[3] : 'none',
+    //     maxWidth: '500px',
+    //     width: '90%',
+    //     margin: 'auto',
+    //     overflow: 'hidden',
+    // },
+    boxShadow: theme.shadows ? (theme.shadows as string[])[3] : 'none',
+    maxWidth: '700px',
+    width: '90%',
+    margin: 'auto',
+    overflow: 'hidden',
+}));
+const StyledForm = styled('form')(() => ({
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+    marginTop: theme.spacing(2),
+    transition: 'transform 0.2s',
     '&:hover': {
-        transform: 'scale(1.02)',
+        transform: 'scale(1.05)',
     },
 }));
 
-
+const validationSchema = z.object({
+    // userType: z.string().min(1, "User Type is required"),
+    sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
+    email: z.string().email("Invalid email address"),
+    dob: z.string().refine((date) => {
+        const birthDate = new Date(date);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        return age >= 10 && age <= 80;
+    }, "Age must be between 10 and 80 years"),
+    phone: z.string().regex(/^[6789]\d{9}$/, "Phone number must be 10 digits and start with 6, 7, 8, or 9"),
+    password: z.string().min(10, "Password must be at least 10 characters").regex(/[A-Z]/, "Must contain at least one uppercase letter").regex(/[a-z]/, "Must contain at least one lowercase letter").regex(/\d/, "Must contain at least one number").regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
+    confirmPassword: z.string(),
+}).refine((data) => {
+    console.log("Password:", data.password, "Confirm Password:", data.confirmPassword);
+    return data.password === data.confirmPassword;
+}, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
 const Register: React.FC = () => {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(validationSchema),
+        mode: "onBlur",
+    });
+    const userTypeOptions = ["Student", "Teacher"];
     const theme = useTheme();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -48,6 +105,7 @@ const Register: React.FC = () => {
     const [toasterMessage, setToasterMessage] = useState('');
     const [toasterSeverity, setToasterSeverity] = useState<'success' | 'error'>('success');
     const [formData, setFormData] = useState<any>({
+        userType: "",
         sName: " ",
         parentEmail: "",
         parentPhone: "",
@@ -57,8 +115,9 @@ const Register: React.FC = () => {
         gender: "",
         pic: "",
         email: "",
-        userType: "",
-        dob: ""
+        dob: "",
+        qualification: "",
+
     });
 
     const [imagePreview, setImagePreview] = useState<any>(null);
@@ -68,10 +127,11 @@ const Register: React.FC = () => {
         if (studentData) {
             navigate("/student-details");
         }
-        
+
     }, [studentData, navigate]);
 
     const handleChange = (e: any, index?: number) => {
+        console.log("input element", e);
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
@@ -112,17 +172,19 @@ const Register: React.FC = () => {
         setToasterOpen(false);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async () => {
+        // e.preventDefault();
         setLoading(true);
         if (formData.password !== formData.confirmPassword) {
             setToasterMessage("Passwords do not match");
             setToasterSeverity('error');
             setToasterOpen(true);
+            setLoading(false);
             return;
         }
 
         try {
+
             const response = await fetch(`http://localhost:5000/api/students/register`, {
                 method: 'POST',
                 headers: {
@@ -132,11 +194,10 @@ const Register: React.FC = () => {
                 body: JSON.stringify({
                     ...formData,
                     isArchived: false,
-                    userType: "student",
+                    // userType: "student",
                     parentEmail: "test@gmail.com",
-                    gender:"male",
-                    parentPhone: "12345",
-                    sclass: "12",
+                    gender: "male",
+                    parentPhone: "12345"
 
                 }),
             });
@@ -177,24 +238,49 @@ const Register: React.FC = () => {
         }
     };
 
+    const handleChangeSelect = (e: any) => {
+        console.log("input element", e);
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    }
+
     return (
         <StyledBox>
             <Typography variant="h4" gutterBottom>
                 Online Coaching
             </Typography>
-            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <StyledForm onSubmit={handleSubmit(onSubmit)} style={{ width: '60%' }}>
                 <Box display="flex" flexDirection="column" gap={2}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">UserType</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            name="userType"
+                            value={formData.userType}
+                            label="UserType"
+                            onChange={handleChangeSelect}
+                        >
+                            {userTypeOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField
                         fullWidth
+                        {...register("sName")} error={!!errors.sName} helperText={errors.sName?.message}
                         label="Name"
-                        name="rName"
+                        name="sName"
                         variant="outlined"
-                        value={formData.rName}
+                        value={formData.sName}
                         onChange={handleChange}
                         required
                     />
                     <TextField
                         fullWidth
+                        {...register("email")} error={!!errors.email} helperText={errors.email?.message}
                         label="Email"
                         name="email"
                         variant="outlined"
@@ -204,6 +290,7 @@ const Register: React.FC = () => {
                     />
                     <TextField
                         fullWidth
+                        {...register("dob")} error={!!errors.dob} helperText={errors.dob?.message}
                         label="Date of Birth"
                         name="dob"
                         type="date"
@@ -213,8 +300,25 @@ const Register: React.FC = () => {
                         InputLabelProps={{ shrink: true }}
                         required
                     />
+                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Date of Birth"
+                            value={formData.dob}
+                            onChange={(newValue) => handleChange({ target: { name: 'dob', value: newValue } })}
+                        />
+                        <TextField
+                            fullWidth
+                            {...register("dob")} error={!!errors.dob} helperText={errors.dob?.message}
+                            variant="outlined"
+                            name="dob"
+                            required
+                            value={formData.dob}
+                            onChange={handleChange}
+                        />
+                    </LocalizationProvider> */}
                     <TextField
                         fullWidth
+                        {...register("phone")} error={!!errors.phone} helperText={errors.phone?.message}
                         label="Phone Number"
                         name="phone"
                         variant="outlined"
@@ -224,6 +328,7 @@ const Register: React.FC = () => {
                     />
                     <TextField
                         fullWidth
+                        {...register("password")} error={!!errors.password} helperText={errors.password?.message}
                         label="Password"
                         name="password"
                         type="password"
@@ -234,6 +339,7 @@ const Register: React.FC = () => {
                     />
                     <TextField
                         fullWidth
+                        {...register("confirmPassword")} error={!!errors.confirmPassword} helperText={errors.confirmPassword?.message}
                         label="Confirm Password"
                         name="confirmPassword"
                         type="password"
@@ -242,6 +348,28 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
+                    {formData?.userType === "Student" ? <TextField
+                        fullWidth
+                        label="Class"
+                        name="sclass"
+                        type="text"
+                        variant="outlined"
+                        value={formData.sclass}
+                        onChange={handleChange}
+                        required
+                    /> : formData?.userType === "Teacher" ?
+                        <TextField
+                            fullWidth
+                            label="Qualification"
+                            name="qualification"
+                            type="text"
+                            variant="outlined"
+                            value={formData.qualification}
+                            onChange={handleChange}
+                            required
+                        /> : null}
+
+
 
                     <Box sx={{ marginY: "20px" }}>
                         <input
@@ -269,7 +397,7 @@ const Register: React.FC = () => {
 
                     </Box>
 
-                    <Button
+                    <StyledButton
                         type="submit"
                         variant="contained"
                         color="primary"
@@ -284,9 +412,9 @@ const Register: React.FC = () => {
                         disabled={loading} // Disable button when loading
                     >
                         {loading ? <CircularProgress size={24} /> : 'Register'}
-                    </Button>
+                    </StyledButton>
                 </Box>
-            </form>
+            </StyledForm>
             <Backdrop open={loading} sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
