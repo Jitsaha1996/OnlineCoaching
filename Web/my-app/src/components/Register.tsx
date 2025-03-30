@@ -96,6 +96,7 @@ const Register: React.FC = () => {
         mode: "onBlur",
     });
     const userTypeOptions = ["Student", "Teacher"];
+    const classOptions = ["10th Standard", "12th Standard", "Graduation","Others"];
     const theme = useTheme();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -106,7 +107,7 @@ const Register: React.FC = () => {
     const [toasterSeverity, setToasterSeverity] = useState<'success' | 'error'>('success');
     const [formData, setFormData] = useState<any>({
         userType: "",
-        sName: " ",
+        sName: "",
         parentEmail: "",
         parentPhone: "",
         sclass: "",
@@ -117,6 +118,7 @@ const Register: React.FC = () => {
         email: "",
         dob: "",
         qualification: "",
+        experience: "",
 
     });
 
@@ -227,7 +229,9 @@ const Register: React.FC = () => {
                 pic: "",
                 email: "",
                 userType: "",
-                dob: ""
+                dob: "",
+                qualification: "",
+                experience: "",
             });
             setIsPhotoUploaded(false); // Reset photo upload state after registration
         } catch (error: any) {
@@ -260,6 +264,7 @@ const Register: React.FC = () => {
                             value={formData.userType}
                             label="UserType"
                             onChange={handleChangeSelect}
+                            required
                         >
                             {userTypeOptions.map((option) => (
                                 <MenuItem key={option} value={option}>
@@ -348,16 +353,36 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
-                    {formData?.userType === "Student" ? <TextField
-                        fullWidth
-                        label="Class"
-                        name="sclass"
-                        type="text"
-                        variant="outlined"
-                        value={formData.sclass}
-                        onChange={handleChange}
-                        required
-                    /> : formData?.userType === "Teacher" ?
+                    {formData?.userType === "Student" ? <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Class</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            name="sclass"
+                            value={formData.sclass}
+                            label="Class"
+                            onChange={handleChangeSelect}
+                        >
+                            {classOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Select>
+
+                        {formData?.sclass === "Others"? 
+                        <TextField
+                            fullWidth
+                            label="Enter Class"
+                            name="sclassOther"
+                            type="text"
+                            variant="outlined"
+                            value={formData.sclassOther}
+                            onChange={handleChange}
+                            required
+                        /> : null}
+                    </FormControl> : formData?.userType === "Teacher" ?
+                    <>
                         <TextField
                             fullWidth
                             label="Qualification"
@@ -367,7 +392,18 @@ const Register: React.FC = () => {
                             value={formData.qualification}
                             onChange={handleChange}
                             required
-                        /> : null}
+                        /> 
+                        <TextField
+                        fullWidth
+                        label="Experience"
+                        name="experience"
+                        type="text"
+                        variant="outlined"
+                        value={formData.experience}
+                        onChange={handleChange}
+                        required
+                        /> 
+                    </>: null}
 
 
 
