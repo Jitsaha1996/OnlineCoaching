@@ -1,68 +1,127 @@
 import { createTheme } from '@mui/material/styles';
 
-// Define your custom theme
 const theme = createTheme({
   palette: {
     background: {
-      paper: '#ffffea',  // Light background color for paper elements
+      default: '#f4f4f4',
+      paper: '#ffffea',
     },
     primary: {
-      main: '#1976d2',  // Primary color
+      main: '#1976d2',
+      light: '#63a4ff',
+      dark: '#004ba0',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#dc004e',  // Secondary color
+      main: '#dc004e',
+      light: '#ff5983',
+      dark: '#9a0036',
+      contrastText: '#ffffff',
     },
     text: {
-      primary: '#000000',  // Primary text color
-      secondary: '#555555', // Secondary text color
+      primary: '#000000',
+      secondary: '#555555',
+      disabled: '#9e9e9e',
+    },
+    action: {
+      hover: 'rgba(0, 0, 0, 0.08)',
+      selected: 'rgba(0, 0, 0, 0.14)',
+      disabledBackground: 'rgba(0, 0, 0, 0.12)',
     },
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
-    h6: {
-      fontSize: '1.25rem',
-      fontWeight: 700,
-    },
-    // Add other typography settings as needed
+    h1: { fontSize: '2.5rem', fontWeight: 700 },
+    h2: { fontSize: '2rem', fontWeight: 600 },
+    h3: { fontSize: '1.75rem', fontWeight: 500 },
+    h4: { fontSize: '1.5rem', fontWeight: 500 },
+    h5: { fontSize: '1.25rem', fontWeight: 400 },
+    h6: { fontSize: '1rem', fontWeight: 700 },
+    button: { textTransform: 'none' },
   },
-  spacing: 8, // Default spacing unit (8px)
-  breakpoints: {
-    values: {
-      xs: 0,   // Extra small devices
-      sm: 600, // Small devices (landscape phones)
-      md: 900, // Medium devices (tablets)
-      lg: 1200, // Large devices (desktops)
-      xl: 1536, // Extra large devices (large desktops)
+  spacing: 8,
+  shape: {
+    borderRadius: 12,
+  },
+  transitions: {
+    duration: {
+      shortest: 150,
+      shorter: 200,
+      short: 250,
+      standard: 300,
+      complex: 375,
+      enteringScreen: 225,
+      leavingScreen: 195,
     },
   },
   shadows: [
-    'none', // Shadow for level 0 (no shadow)
-    '0px 1px 3px rgba(0,0,0,0.2), 0px 1px 2px rgba(0,0,0,0.14)', // Shadow for level 1
-    '0px 1px 5px rgba(0,0,0,0.2), 0px 1px 3px rgba(0,0,0,0.12)', // Shadow for level 2
-    '0px 3px 5px rgba(0,0,0,0.2), 0px 1px 10px rgba(0,0,0,0.14)', // Shadow for level 3
-    '0px 4px 5px rgba(0,0,0,0.2), 0px 1px 15px rgba(0,0,0,0.14)', // Shadow for level 4
-    '0px 6px 10px rgba(0,0,0,0.2), 0px 1px 20px rgba(0,0,0,0.14)', // Shadow for level 5
-    '0px 10px 15px rgba(0,0,0,0.2), 0px 1px 25px rgba(0,0,0,0.14)', // Shadow for level 6
-    '0px 15px 20px rgba(0,0,0,0.2), 0px 1px 30px rgba(0,0,0,0.14)', // Shadow for level 7
-    '0px 20px 25px rgba(0,0,0,0.2), 0px 1px 35px rgba(0,0,0,0.14)', // Shadow for level 8
-    '0px 25px 30px rgba(0,0,0,0.2), 0px 1px 40px rgba(0,0,0,0.14)', // Shadow for level 9
-    '0px 30px 35px rgba(0,0,0,0.2), 0px 1px 45px rgba(0,0,0,0.14)', // Shadow for level 10
-    '0px 35px 40px rgba(0,0,0,0.2), 0px 1px 50px rgba(0,0,0,0.14)', // Shadow for level 11
-    '0px 40px 45px rgba(0,0,0,0.2), 0px 1px 55px rgba(0,0,0,0.14)', // Shadow for level 12
-    '0px 45px 50px rgba(0,0,0,0.2), 0px 1px 60px rgba(0,0,0,0.14)', // Shadow for level 13
-    '0px 50px 55px rgba(0,0,0,0.2), 0px 1px 65px rgba(0,0,0,0.14)', // Shadow for level 14
-    '0px 55px 60px rgba(0,0,0,0.2), 0px 1px 70px rgba(0,0,0,0.14)', // Shadow for level 15
-    '0px 60px 65px rgba(0,0,0,0.2), 0px 1px 75px rgba(0,0,0,0.14)', // Shadow for level 16
-    '0px 1px 80px rgba(0,0,0,0.2)', // Shadow for level 17
-    '0px 1px 85px rgba(0,0,0,0.2)', // Shadow for level 18
-    '0px 1px 90px rgba(0,0,0,0.2)', // Shadow for level 19
-    '0px 1px 95px rgba(0,0,0,0.2)', // Shadow for level 20
-    '0px 1px 100px rgba(0,0,0,0.2)', // Shadow for level 21
-    '0px 1px 105px rgba(0,0,0,0.2)', // Shadow for level 22
-    '0px 1px 110px rgba(0,0,0,0.2)', // Shadow for level 23
-    '0px 1px 115px rgba(0,0,0,0.2)', // Shadow for level 24
-     // Shadow for level 25
-  ],
+    "none",
+    "0px 1px 2px rgba(0, 0, 0, 0.2)",
+    "0px 2px 4px rgba(0, 0, 0, 0.2)",
+    "0px 3px 6px rgba(0, 0, 0, 0.2)",
+    "0px 4px 8px rgba(0, 0, 0, 0.2)",
+    "0px 5px 10px rgba(0, 0, 0, 0.2)",
+    "0px 6px 12px rgba(0, 0, 0, 0.2)",
+    "0px 7px 14px rgba(0, 0, 0, 0.2)",
+    "0px 8px 16px rgba(0, 0, 0, 0.2)",
+    "0px 9px 18px rgba(0, 0, 0, 0.2)",
+    "0px 10px 20px rgba(0, 0, 0, 0.2)",
+    "0px 11px 22px rgba(0, 0, 0, 0.2)",
+    "0px 12px 24px rgba(0, 0, 0, 0.2)",
+    "0px 13px 26px rgba(0, 0, 0, 0.2)",
+    "0px 14px 28px rgba(0, 0, 0, 0.2)",
+    "0px 15px 30px rgba(0, 0, 0, 0.2)",
+    "0px 16px 32px rgba(0, 0, 0, 0.2)",
+    "0px 17px 34px rgba(0, 0, 0, 0.2)",
+    "0px 18px 36px rgba(0, 0, 0, 0.2)",
+    "0px 19px 38px rgba(0, 0, 0, 0.2)",
+    "0px 20px 40px rgba(0, 0, 0, 0.2)",
+    "0px 21px 42px rgba(0, 0, 0, 0.2)",
+    "0px 22px 44px rgba(0, 0, 0, 0.2)",
+    "0px 23px 46px rgba(0, 0, 0, 0.2)",
+    "0px 24px 48px rgba(0, 0, 0, 0.2)",
+  ] as const,
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          padding: '8px 16px',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            filter: 'brightness(90%)',
+          },
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          padding: '16px',
+          borderRadius: 12,
+          boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.15)',
+        },
+      },
+    },
+  },
 });
 
 export default theme;

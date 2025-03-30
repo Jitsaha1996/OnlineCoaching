@@ -1,8 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Login from "./Login";
 import { About } from "./About";
 import { Home } from "./Home";
 import Header from "./Header";
 import { StudentDetails } from "./StudentDetails";
+import { TeacherDetails } from "./TeacherDetails";
 import Register from "./Register";
 // import { Header } from "./Header";
 
@@ -16,13 +18,15 @@ interface RouteConfig {
     { path: '/about', element: <About /> },
     { path: '/student-details', element: <StudentDetails/> },
     { path: '/register', element: <Register /> },
+    {path: '/login', element: <Login />},
+    {path: '/teacher-details', element: <TeacherDetails/> },
     
     
     
     // { path: '/contact', element: <Contact /> },
     // { path: '/register', element: <Register /> },
     // { path: '/user-details', element: <UserDetails /> },
-    // { path: '/login', element: <Login /> },
+    
     // { path: '/admin-panel', element: <AdminPanel /> },
     // { path: '/seat-details', element: <BusLayout /> },
   ];
