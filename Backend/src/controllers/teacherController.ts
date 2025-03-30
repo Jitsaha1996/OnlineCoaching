@@ -67,11 +67,11 @@ export const authTeachers = asyncHandler(async (req: Request, res: Response) => 
       _id: teacher._id,
       sName: teacher.tName,
       email: teacher.email,
-    //   isAdmin: student.isAdmin,
+      isAdmin: teacher.isAdmin,
     userType:teacher.userType,
       isArchived: teacher.isArchived,
       password: teacher.password,
-      // pic: student.pic,
+      pic: teacher.pic,
       phone: teacher.phone,
       token: jwtTokenTeacher("teacher", teacher._id),
     });
