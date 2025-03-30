@@ -40,7 +40,7 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "Node.js API with Swagger",
+            title: "Online Coaching Application",
             version: "1.0.0",
             description: "API documentation for student and teacher management",
         },
