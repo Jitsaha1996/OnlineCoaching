@@ -77,51 +77,59 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+        const url = formData?.userType === "Student"
+            ? "https:/localhost:5000/api/students/login"
+            : formData?.userType === "Teacher"
+            ? "https:/localhost:5000/api/teachers/login"
+            : "";
+        if (!url) {
+            setError("Invalid user type");
+            setLoading(false);
+            return;
+        }
+        
+        try {
+            
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userType, email: formData.email, password: formData.password }),
+            });
+
+            if (!response.ok) {
+                setToasterMessage("Invalid email or password");
+                setToasterSeverity('error');
+                setToasterOpen(true);
+                throw new Error('Invalid email or password');
+            }
+
+            const data = await response.json();
+            dispatch(setStudent(data));
+            setToasterMessage("Login successful!");
+            setToasterSeverity('success');
+            setToasterOpen(true);
+
+            setTimeout(() => {
+                setLoading(false);
+                navigate('/home');
+            }, 1500);
+            
+
+
+        } catch (err: any) {
+            setError(err.message);
+            setLoading(false);
+        }
+
         if (formData?.userType === "Student") {
             navigate("/student-details");
         } else if (formData?.userType === "Teacher") {
             navigate("/teacher-details");
         }
         setLoading(false);
-
-        // try {
-        //     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ email, password }),
-        //     });
-
-        //     if (!response.ok) {
-        //         setToasterMessage("Invalid email or password");
-        //         setToasterSeverity('error');
-        //         setToasterOpen(true);
-        //         throw new Error('Invalid email or password');
-        //     }
-
-        //     const data = await response.json();
-        //     dispatch(setStudent(data));
-        //     setToasterMessage("Login successful!");
-        //     setToasterSeverity('success');
-        //     setToasterOpen(true);
-
-        //     setTimeout(() => {
-        //         setLoading(false);
-        //         navigate('/home');
-        //     }, 1500);
-        //     setFormData({
-        //         userType: "",
-        //         password: "",
-        //         email: ""
-
-        //     });
-
-
-        // } catch (err: any) {
-        //     setError(err.message);
-        //     setLoading(false);
-        // }
     };
 
     const handleForgetPassword = async (e: React.FormEvent) => {
@@ -135,42 +143,50 @@ const Login: React.FC = () => {
             return;
         }
 
-        // try {
-        //     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/forgetpassword`, {
-        //         method: 'PUT',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ email, newPassword }),
-        //     });
-        //     setFormData({
-        //         newPassword: "",
-        //         confirmPassword: ""
-
-        //     });
-
-        //     if (!response.ok) {
-        //         setToasterMessage("Error updating password");
-        //         setToasterSeverity('error');
-        //         setToasterOpen(true);
-        //         throw new Error('Error updating password');
-        //     }
-
-        //     setToasterMessage("Password changed successfully!");
-        //     setToasterSeverity('success');
-        //     setToasterOpen(true);
-
-        //     setTimeout(() => {
-        //         setIsForgetPassword(false);
-        //         setLoading(false);
-        //         navigate('/login'); // Redirect to login page
-        //     }, 1500);
+        try {
+            const url = formData?.userType === "Student"
+                ? "https:/localhost:5000/api/students/forgetPassword"
+                : formData?.userType === "Teacher"
+                ? "https:/localhost:5000/api/teachers/forgetPassword"
+                : "";
+            
+            if (!url) {
+                setError("Invalid user type");
+                setLoading(false);
+                return;
+            }
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userType, email: formData.email, newPassword: formData.newPassword }),
+            });
             
 
-        // } catch (err: any) {
-        //     setError(err.message);
-        //     setLoading(false);
-        // }
+            if (!response.ok) {
+                setToasterMessage("Error updating password");
+                setToasterSeverity('error');
+                setToasterOpen(true);
+                throw new Error('Error updating password');
+            }
+
+            setToasterMessage("Password changed successfully!");
+            setToasterSeverity('success');
+            setToasterOpen(true);
+
+            setTimeout(() => {
+                setIsForgetPassword(false);
+                setLoading(false);
+                navigate('/login'); // Redirect to login page
+            }, 1500);
+            
+
+        } catch (err: any) {
+            setError(err.message);
+            setLoading(false);
+        }
     };
     const handleChangeSelect = (e: any) => {
         console.log("input element", e);
