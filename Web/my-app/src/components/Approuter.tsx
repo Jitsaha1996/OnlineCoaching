@@ -6,6 +6,7 @@ import Header from "./Header";
 import { StudentDetails } from "./StudentDetails";
 import { TeacherDetails } from "./TeacherDetails";
 import Register from "./Register";
+import AdminPanel from "./admin/AdminPanel";
 // import { Header } from "./Header";
 
 interface RouteConfig {
@@ -18,6 +19,7 @@ interface RouteConfig {
     { path: '/about', element: <About /> },
     { path: '/student-details', element: <StudentDetails/> },
     { path: '/register', element: <Register /> },
+    { path: '/admin-panel', element: <AdminPanel /> },
     {path: '/login', element: <Login />},
     {path: '/teacher-details', element: <TeacherDetails/> },
     
