@@ -18,13 +18,15 @@ import { z } from "zod";
 import { useDispatch, useSelector } from 'react-redux';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useRevalidator } from 'react-router-dom';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
 import { setStudent } from '../redux/studentsSlice';
+import {setTeacher} from '../redux/teachersSlice';
 import { RootState } from '../redux/store';
 import imageCompression from 'browser-image-compression';
 import { IStudents } from '../common/IStudents';
+import { ITeachers } from '../common/ITeachers';
 import ImagePreview from '../Utils/ImagePreview';
 import Toaster from '../Utils/Toaster';
 
@@ -70,6 +72,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const validationSchema = z.object({
     // userType: z.string().min(1, "User Type is required"),
     sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
+    tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
     email: z.string().email("Invalid email address"),
     dob: z.string().refine((date) => {
         const birthDate = new Date(date);
@@ -80,6 +83,8 @@ const validationSchema = z.object({
     phone: z.string().regex(/^[6789]\d{9}$/, "Phone number must be 10 digits and start with 6, 7, 8, or 9"),
     password: z.string().min(10, "Password must be at least 10 characters").regex(/[A-Z]/, "Must contain at least one uppercase letter").regex(/[a-z]/, "Must contain at least one lowercase letter").regex(/\d/, "Must contain at least one number").regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
     confirmPassword: z.string(),
+    parentPhone: z.string().regex(/^[6789]\d{9}$/, "Phone number must be 10 digits and start with 6, 7, 8, or 9"),
+    parentEmail: z.string().email("Invalid email address"),
 }).refine((data) => {
     console.log("Password:", data.password, "Confirm Password:", data.confirmPassword);
     return data.password === data.confirmPassword;
@@ -98,20 +103,26 @@ const Register: React.FC = () => {
     });
     const userTypeOptions = ["Student", "Teacher"];
     const classOptions = ["10th Standard", "12th Standard", "Graduation","Others"];
+    const qualificationOptions = ["B.A.", "B.Com", "B.Sc","B.Tech","M.A.", "M.Com", "M.Sc","M.Tech","Others"];
+    const experienceOptions = ["No Prior Experience","1 - 5 years", "5 - 10 years", "More than 10 years"];
+    const adminRequestOptions = ["Yes","No"];
     const theme = useTheme();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false); // Loading state
     const studentData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
+    const teacherData = useSelector((state: RootState) => state.teachers.teachersData) as ITeachers | null;
     const [toasterOpen, setToasterOpen] = useState(false);
     const [toasterMessage, setToasterMessage] = useState('');
     const [toasterSeverity, setToasterSeverity] = useState<'success' | 'error'>('success');
     const [formData, setFormData] = useState<any>({
         userType: "",
         sName: "",
+        tName: "",
         parentEmail: "",
         parentPhone: "",
         sclass: "",
+        sclassOther: "",
         confirmPassword: "",
         password: "",
         gender: "",
@@ -119,8 +130,8 @@ const Register: React.FC = () => {
         email: "",
         dob: "",
         qualification: "",
+        qualificationOther: "",
         experience: "",
-
     });
 
     const [imagePreview, setImagePreview] = useState<any>(null);
@@ -130,8 +141,11 @@ const Register: React.FC = () => {
         if (studentData) {
             navigate("/student-details");
         }
+        else if(teacherData){
+            navigate("/teacher-details");
+        }
 
-    }, [studentData, navigate]);
+    }, [studentData, teacherData, navigate]);
 
     const handleChange = (e: any, index?: number) => {
         console.log("input element", e);
@@ -187,8 +201,17 @@ const Register: React.FC = () => {
         }
 
         try {
+            const selectedClass =
+                formData.sclass === "Others" ? formData.sclassOther : formData.sclass;
 
-            const response = await fetch(`http://localhost:5000/api/students/register`, {
+            const selectedQualification =
+                formData.qualification === "Others" ? formData.qualificationOther : formData.qualification;
+
+            const user=formData.userType.toLowerCase();
+
+            const apiUrl=`http://localhost:5000/api/${user}s/register`;
+
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -198,16 +221,21 @@ const Register: React.FC = () => {
                     ...formData,
                     isArchived: false,
                     // userType: "student",
-                    parentEmail: "test@gmail.com",
-                    gender: "male",
-                    parentPhone: "12345"
+                    sclass: selectedClass,
+                    qualification: selectedQualification,
 
                 }),
             });
 
             if (!response.ok) throw new Error('Registration failed');
-            const studentData = await response.json();
-            dispatch(setStudent(studentData)); // Dispatch user data to Redux store
+            const userData = await response.json();
+            if(user === "student"){
+                dispatch(setStudent(userData)); // Dispatch user data to Redux store
+            }
+            else if(user === "teacher"){
+                dispatch(setTeacher(userData)); // Dispatch user data to Redux store
+
+            }
 
             setToasterMessage("Registration successful!");
             setToasterSeverity('success');
@@ -216,14 +244,16 @@ const Register: React.FC = () => {
             // Use a timeout to delay the navigation so that toaster can show
             setTimeout(() => {
                 setLoading(false); // Stop loading
-                navigate('/student-details');
+                navigate('/${user}-details');
             }, 1500);
 
             setFormData({
-                sName: " ",
+                sName: "",
+                tName: "",
                 parentEmail: "",
                 parentPhone: "",
                 sclass: "",
+                sclassOther: "",
                 confirmPassword: "",
                 password: "",
                 gender: "",
@@ -232,6 +262,7 @@ const Register: React.FC = () => {
                 userType: "",
                 dob: "",
                 qualification: "",
+                qualificationOther: "",
                 experience: "",
             });
             setIsPhotoUploaded(false); // Reset photo upload state after registration
@@ -249,6 +280,29 @@ const Register: React.FC = () => {
         setFormData({ ...formData, [name]: value });
     }
 
+    const handleChangeClass = (e: any) => {
+        console.log("input element", e);
+        const { name, value } = e.target;
+
+        if(name === "sclass" && value!=="Others"){
+            setFormData({ ...formData, sclass: value, sclassOther: "" });
+        }
+        else{
+            setFormData({...formData,[name]: value});
+        }
+    }
+
+        const handleChangeQualification = (e: any) => {
+            console.log("input element", e);
+            const { name, value } = e.target;
+    
+            if(name === "qualification" && value!=="Others"){
+                setFormData({ ...formData, qualification: value, qualificationOther: "" });
+            }
+            else{
+                setFormData({...formData,[name]: value});
+            }
+        }
     return (
         <StyledBox>
             <Typography variant="h4" gutterBottom>
@@ -266,7 +320,6 @@ const Register: React.FC = () => {
                             label="UserType"
                             required
                             onChange={handleChangeSelect}
-                            required
                         >
                             {userTypeOptions.map((option) => (
                                 <MenuItem key={option} value={option}>
@@ -274,15 +327,15 @@ const Register: React.FC = () => {
                                 </MenuItem>
                             ))}
                         </Select>
-                        
+                        <FormHelperText>Required</FormHelperText>
                     </FormControl>
                     <TextField
                         fullWidth
-                        {...register("sName")} error={!!errors.sName} helperText={errors.sName?.message}
+                        {...register(formData?.userType === "Student"? "sName": "tName")} error={!!errors[formData?.userType === "Student" ? "sName" : "tName"]} helperText={errors[formData?.userType === "Student" ? "sName" : "tName"]?.message}
                         label="Name"
-                        name="sName"
+                        name = {formData?.userType === "Student"? "sName": "tName"}
                         variant="outlined"
-                        value={formData.sName}
+                        value={formData?.userType === "Student"? formData.sName: formData.tName}
                         onChange={handleChange}
                         required
                     />
@@ -356,56 +409,126 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
-                    {formData?.userType === "Student" ? <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Class</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            name="sclass"
-                            value={formData.sclass}
-                            label="Class"
-                            onChange={handleChangeSelect}
-                        >
-                            {classOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-
-                        {formData?.sclass === "Others"? 
-                        <TextField
-                            fullWidth
-                            label="Enter Class"
-                            name="sclassOther"
-                            type="text"
-                            variant="outlined"
-                            value={formData.sclassOther}
-                            onChange={handleChange}
-                            required
-                        /> : null}
-                    </FormControl> : formData?.userType === "Teacher" ?
+                    {formData?.userType === "Student" ? 
                     <>
-                        <TextField
-                            fullWidth
-                            label="Qualification"
-                            name="qualification"
-                            type="text"
-                            variant="outlined"
-                            value={formData.qualification}
-                            onChange={handleChange}
-                            required
-                        /> 
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Class</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                name="sclass"
+                                value={formData.sclass}
+                                label="Class"
+                                onChange={handleChangeClass}
+                                required
+                            >
+                                {classOptions.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            <br/>
+                            {formData?.sclass === "Others"? 
+                            <TextField
+                                fullWidth
+                                label="Specify Your Class"
+                                name="sclassOther"
+                                type="text"
+                                variant="outlined"
+                                value={formData.sclassOther}
+                                onChange={handleChange}
+                                required
+                            /> : null}
+                        </FormControl>
                         <TextField
                         fullWidth
-                        label="Experience"
-                        name="experience"
-                        type="text"
+                        label="Parent's Phone Number"
+                        name="parentPhone"
+                        type="tel"
                         variant="outlined"
-                        value={formData.experience}
+                        value={formData.parentPhone}
                         onChange={handleChange}
                         required
                         /> 
+                        <TextField
+                        fullWidth
+                        label="Parent's Email"
+                        name="parentEmail"
+                        type="email"
+                        variant="outlined"
+                        value={formData.parentEmail}
+                        onChange={handleChange}
+                        required
+                        /> 
+                    </> : formData?.userType === "Teacher" ?
+                    <>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Qualification</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                name="qualification"
+                                value={formData.qualification}
+                                label="Qualification"
+                                onChange={handleChangeQualification}
+                                required
+                            >
+                                {qualificationOptions.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            <br/>
+                            {formData?.qualification === "Others"? 
+                            <TextField
+                                fullWidth
+                                label="Mention Your Qualification"
+                                name="qualificationOther"
+                                type="text"
+                                variant="outlined"
+                                value={formData.qualificationOther}
+                                onChange={handleChange}
+                                required
+                            /> : null}
+                        </FormControl>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Experience</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                name="experience"
+                                value={formData.experience}
+                                label="Experience"
+                                onChange={handleChangeSelect}
+                                required
+                            >
+                                {experienceOptions.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Request Admin Access</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                name="isAdmin"
+                                value={formData.isAdmin}
+                                label="Admin Access"
+                                onChange={handleChangeSelect}
+                                required
+                            >
+                                {adminRequestOptions.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </>: null}
 
 
