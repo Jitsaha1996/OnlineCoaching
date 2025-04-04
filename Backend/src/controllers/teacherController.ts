@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import jwtToken from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
+import { jwtTokenTeacher } from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
 import Teacher  from "../models/teachersModel"; // Adjust import path as needed
 
 // Register a new user
 export const registerTeachers = asyncHandler(async (req: Request, res: Response) => {
-  const { tName, email, password, pic, dob, phone, isArchived } = req.body;
+  const { tName, email, password, pic, dob, phone, isArchived,userType,qualification,experience,isModified } = req.body;
 
   // Check if user already exists
-  const userExist = await Teacher.findOne({ email });
-  if (userExist) {
+  const teacherExist = await Teacher.findOne({ email });
+  if (teacherExist) {
     res.status(400);
     throw new Error("User Already Exist");
   }
@@ -29,19 +29,28 @@ export const registerTeachers = asyncHandler(async (req: Request, res: Response)
     dob,
     phone,
     isArchived,
+    userType,
+    qualification,
+    experience,
+    isModified
   });
 
   if (teacher) {
     res.status(201).json({
       _id: teacher._id,
-      rName: teacher.tName,
+      tName: teacher.tName,
       pic: teacher.pic,
       email: teacher.email,
       isAdmin: teacher.isAdmin,
       phone: teacher.phone,
       dob: teacher.dob,
+      userType: teacher.userType,
       isArchived: teacher.isArchived,
-    //   token: jwtToken(teacher._id),
+      qualification: teacher.qualification,
+      
+      experience: teacher.experience,
+      isModified: teacher.isModified,
+      token: jwtTokenTeacher("teacher",teacher),
     });
   } else {
     res.status(400);
@@ -49,63 +58,6 @@ export const registerTeachers = asyncHandler(async (req: Request, res: Response)
   }
 });
 
-// Edit user details
-export const editTeachers = asyncHandler(async (req: Request, res: Response) => {
-  const { tName, pic, dob, phone, email, isArchived } = req.body;
-
-  const teacherExist = await Teacher.findOne({ email });
-  if (!teacherExist) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-
-  const filter = { email: email };
-  const updateDocument = {
-    $set: {
-      tName,
-      pic,
-      dob,
-      phone,
-      isArchived,
-    },
-  };
-
-  const teacher = await Teacher.updateOne(filter, updateDocument);
-
-  if (teacher.modifiedCount > 0) {
-    res.status(200).json({
-      message: `${email} updated successfully!`,
-      status: "success",
-      email,
-      statusCode: 200,
-    });
-  } else {
-    res.status(400);
-    throw new Error("Error Occurred");
-  }
-});
-
-// Forget password
-export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
-  const { phone, newPassword } = req.body;
-
-  const teacherExist = await Teacher.findOne({ phone });
-  if (!teacherExist) {
-    res.status(404);
-    throw new Error("User not found");
-  }
-
-  teacherExist.password = newPassword; // Update password directly
-  await teacherExist.save();
-
-  res.status(200).json({
-    message: `${phone} updated successfully!`,
-    status: "success",
-    statusCode: 200,
-  });
-});
-
-// Authenticate user
 export const authTeachers = asyncHandler(async (req: Request, res: Response) => {
   const { phone, password } = req.body;
 
@@ -116,9 +68,12 @@ export const authTeachers = asyncHandler(async (req: Request, res: Response) => 
       sName: teacher.tName,
       email: teacher.email,
       isAdmin: teacher.isAdmin,
+    userType:teacher.userType,
       isArchived: teacher.isArchived,
+      password: teacher.password,
       pic: teacher.pic,
-    //   token: jwtToken(teacher._id),
+      phone: teacher.phone,
+      token: jwtTokenTeacher("teacher", teacher._id),
     });
   } else {
     res.status(401);
@@ -126,41 +81,22 @@ export const authTeachers = asyncHandler(async (req: Request, res: Response) => 
   }
 });
 
-// Get all users
-export const getTeachersList = asyncHandler(async (req: any, res: any) => {
-  try {
-    const teacherList = await Teacher.find().select(
-      "sName phone email isAdmin isArchived"
-    );
 
-    if (!teacherList.length) {
-      return res.status(204).json({ message: "No users found" });
-    }
+export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
+  const { phone, newPassword } = req.body;
 
-    res.status(200).json(teacherList);
-  } catch (error:any) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-});
-
-// Get user by email
-export const getTeachersByEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { email } = req.params;
-
-  const teacher = await Teacher.findOne({ email });
-  if (!teacher) {
+  const teacherExist = await Teacher.findOne({ phone });
+  if (!teacherExist) {
     res.status(404);
-    throw new Error("User not found");
+    throw new Error("teacher not found");
   }
 
-  res.json({
-    _id: teacher._id,
-    rName: teacher.tName,
-    email: teacher.email,
-    isAdmin: teacher.isAdmin,
-    isArchived: teacher.isArchived,
-    pic: teacher.pic,
-    dob: teacher.dob,
-    phone: teacher.phone,
+  teacherExist.password = newPassword; // Update password directly
+  await teacherExist.save();
+
+  res.status(200).json({
+    message: `${phone} updated successfully!`,
+    status: "success",
+    statusCode: 200,
   });
 });
