@@ -5,7 +5,11 @@ const swaggerJsdoc = require("swagger-jsdoc");
 
 var bodyParser = require('body-parser');
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "*", // Allows requests from any origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Explicitly define methods
+    allowedHeaders: ["Content-Type", "Authorization"] // Adjust as needed
+}));
 
 app.use(bodyParser.urlencoded({
     limit: '5mb',
