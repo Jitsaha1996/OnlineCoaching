@@ -96,6 +96,8 @@ const Login: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    // 'origin': 'http://localhost:5000', // Adjust the origin as needed
+                    // 'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ userType: formData.userType, phone: formData.phone, password: formData.password }),
             });
@@ -106,17 +108,26 @@ const Login: React.FC = () => {
                 setToasterOpen(true);
                 throw new Error('Invalid email or password');
             }
-
-            const data = await response.json();
+            else{
+                const data = await response.json();
             dispatch(setStudent(data));
             setToasterMessage("Login successful!");
             setToasterSeverity('success');
             setToasterOpen(true);
+            if (formData?.userType === "Student") {
+                navigate("/student-details");
+            } else if (formData?.userType === "Teacher") {
+                navigate("/teacher-details");
+            }
+            setLoading(false);
 
             setTimeout(() => {
                 setLoading(false);
                 navigate('/home');
             }, 1500);
+            
+            }
+
             
 
 
@@ -125,12 +136,7 @@ const Login: React.FC = () => {
             setLoading(false);
         }
 
-        if (formData?.userType === "Student") {
-            navigate("/student-details");
-        } else if (formData?.userType === "Teacher") {
-            navigate("/teacher-details");
-        }
-        setLoading(false);
+        
     };
 
     const handleForgetPassword = async (e: React.FormEvent) => {
