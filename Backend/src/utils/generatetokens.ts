@@ -35,7 +35,7 @@ const jwtTokenTeacher= (tokenType:any,  teacher: any): any => {
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
   }
-// if (tokenType === "student") {
+
   return jwt.sign(
         {
           id: teacher._id,

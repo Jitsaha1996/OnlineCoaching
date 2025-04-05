@@ -59,8 +59,11 @@ export const registerTeachers = asyncHandler(async (req: Request, res: Response)
 });
 
 export const authTeachers = asyncHandler(async (req: Request, res: Response) => {
-  const { phone, password } = req.body;
-
+  const {userType, phone, password } = req.body;
+  if (userType?.toLowerCase() !== "teacher") {
+    res.status(403);
+    throw new Error("Usertype should be teacher");
+  }
   const teacher = await Teacher.findOne({ phone });
   if (teacher && (await teacher.matchPassword(password))) {
     res.json({
@@ -81,7 +84,6 @@ export const authTeachers = asyncHandler(async (req: Request, res: Response) => 
   }
 });
 
-
 export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
   const { phone, newPassword } = req.body;
 
@@ -99,4 +101,19 @@ export const forgetPasswords = asyncHandler(async (req: Request, res: Response) 
     status: "success",
     statusCode: 200,
   });
+});
+export const getTeachersList = asyncHandler(async (req: any, res: any) => {
+  try {
+    const teacherList = await Teacher.find().select(
+      "sName phone email isAdmin isArchived"
+    );
+
+    if (!teacherList.length) {
+      return res.status(204).json({ message: "No users found" });
+    }
+
+    res.status(200).json(teacherList);
+  } catch (error:any) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
