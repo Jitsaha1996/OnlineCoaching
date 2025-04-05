@@ -5,7 +5,7 @@ const router = express.Router();
 import { 
   registerStudents, 
   authStudents, 
-  // getStudentsList, 
+  getStudentsList, 
   // editStudents, 
   // getStudentsByEmail 
   forgetPasswords
@@ -97,6 +97,8 @@ import {
  *           schema:
  *             type: object
  *             properties:
+ *               userType:
+ *                 type: string
  *               phone:
  *                 type: string
  *                 example: "1234567890"
@@ -176,10 +178,49 @@ import {
  *         description: Bad request, missing phone or password
  *       404:
  *         description: Student not found
+ * /api/students/:
+ *   get:
+ *     summary: all student list
+ *     description: after login or register ,,get the list of all student .
+ *     tags:
+ *       - Students
+ *     responses:
+ *       200:
+ *         description: Successful login, returns student details and token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "60b7c3f3b509b734d4ef1a88"
+ *                 sName:
+ *                   type: string
+ *                   example: "Jane Doe"
+ *                 email:
+ *                   type: string
+ *                   example: "jane.doe@example.com"
+ *                 isArchived:
+ *                   type: boolean
+ *                   example: false
+ *                 userType:
+ *                   type: string
+ *                   example: "student"
+ *                 phone:
+ *                   type: string
+ *                   example: "1234567890"
+ *                 token:
+ *                   type: string
+ *                   example: "jwt_token_here"
+ *       401:
+ *         description: Unauthorized, invalid phone or password
+ *       400:
+ *         description: Bad request, missing phone or password
  */
 // Define routes
 router.route('/register').post(registerStudents);
-// router.route('/').get(getStudentsList);
+router.route('/').get(getStudentsList);
 // router.route('/edit').put(editStudents);
 router.route('/login').post(authStudents);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
