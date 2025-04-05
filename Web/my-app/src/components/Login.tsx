@@ -57,7 +57,8 @@ const Login: React.FC = () => {
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
     const [formData, setFormData] = useState<any>({
         password: "",
-        email: "",
+        //email: "",
+        phone: "",
         userType: "",
         newPassword: "",
         confirmPassword: ""
@@ -96,7 +97,7 @@ const Login: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userType, email: formData.email, password: formData.password }),
+                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, password: formData.password }),
             });
 
             if (!response.ok) {
@@ -229,11 +230,12 @@ const Login: React.FC = () => {
                         {isForgetPassword ? (
                             <>
                                 <TextField
-                                    label="Email"
+                                    label="Phone Number"
+                                    name='phone'
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
-                                    value={formData.email}
+                                    value={formData.phone}
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
@@ -296,10 +298,11 @@ const Login: React.FC = () => {
                                 </FormControl>
 
                                 <TextField
-                                    label="Email"
+                                    label="Phone Number"
+                                    name='phone'
                                     fullWidth
                                     margin="normal"
-                                    name='email'
+                            
                                     variant="outlined"
                                     value={formData.email}
                                     onChange={handleChange}
