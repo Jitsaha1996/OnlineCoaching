@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import jwtToken from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
+// import { jwtToken } from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
 import User, { IUser } from "../models/userModel"; // Adjust import path as needed
 
 // Register a new user
@@ -41,7 +41,7 @@ export const registerUsers = asyncHandler(async (req: Request, res: Response) =>
       phone: user.phone,
       dob: user.dob,
       isArchived: user.isArchived,
-      token: jwtToken(user._id),
+      // token: jwtToken(user._id),
     });
   } else {
     res.status(400);
@@ -118,7 +118,7 @@ export const authUsers = asyncHandler(async (req: Request, res: Response) => {
       isAdmin: user.isAdmin,
       isArchived: user.isArchived,
       pic: user.pic,
-      token: jwtToken(user._id),
+      // token: jwtToken(user._id),
     });
   } else {
     res.status(401);
