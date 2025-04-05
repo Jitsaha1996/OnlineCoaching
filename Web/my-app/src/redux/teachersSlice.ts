@@ -17,16 +17,16 @@ const teachersSlice = createSlice({
     name: 'teachers',
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<Draft<ITeachers>>) => {
+        setTeacher: (state, action: PayloadAction<Draft<ITeachers>>) => {
             state.teachersData = action.payload;
             saveToLocalStorage('teachersData', action.payload);
         },
-        clearUser: (state) => {
+        clearTeacher: (state) => {
             state.teachersData = null;
             localStorage.removeItem('teachersData');
         },
     },
 });
 
-export const { setUser, clearUser } = teachersSlice.actions;
+export const { setTeacher, clearTeacher } = teachersSlice.actions;
 export default teachersSlice.reducer;
