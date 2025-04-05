@@ -22,6 +22,7 @@ import connectDb from './config/db'
 import userRoutes from './routers/userRoutes'
 import studentsRoutes from "./routers/studentsRoutes";
 import teachersRoutes from "./routers/teachersRoutes";
+import qualificationRoutes from "./routers/qualificationRoutes"; 
 // const workoutRoutes = require('./routes/workoutRoutes');
 // const busSeatRoutes = require('./routes/busSeatRoutes');
 // const announcementRoutes = require('./routes/announcementRoutes');
@@ -52,7 +53,9 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/students/', studentsRoutes);
-app.use('/api/teachers/', teachersRoutes);
+app.use('/api/qualification/', qualificationRoutes);
+
+
 // app.use('/api/workouts', workoutRoutes);
 // app.use('/api/busseatdetals', busSeatRoutes);
 // app.use('/api/announcement', announcementRoutes);

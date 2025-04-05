@@ -118,7 +118,12 @@ export const forgetPasswords = asyncHandler(async (req: Request, res: Response) 
 
 // // Authenticate user
 export const authStudents = asyncHandler(async (req: Request, res: Response) => {
-  const { phone, password } = req.body;
+  const { userType, phone, password } = req.body;
+
+  if (userType?.toLowerCase() !== "student") {
+    res.status(403);
+    throw new Error("Usertype should be student");
+  }
 
   const student = await Student.findOne({ phone });
   if (student && (await student.matchPassword(password))) {
@@ -141,21 +146,21 @@ export const authStudents = asyncHandler(async (req: Request, res: Response) => 
 });
 
 // // Get all users
-// export const getStudentsList = asyncHandler(async (req: any, res: any) => {
-//   try {
-//     const studentList = await Student.find().select(
-//       "sName phone email isAdmin isArchived"
-//     );
+export const getStudentsList = asyncHandler(async (req: any, res: any) => {
+  try {
+    const studentList = await Student.find().select(
+      "sName phone email isAdmin isArchived"
+    );
 
-//     if (!studentList.length) {
-//       return res.status(204).json({ message: "No users found" });
-//     }
+    if (!studentList.length) {
+      return res.status(204).json({ message: "No users found" });
+    }
 
-//     res.status(200).json(studentList);
-//   } catch (error:any) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// });
+    res.status(200).json(studentList);
+  } catch (error:any) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 // // Get user by email
 // export const getStudentsByEmail = asyncHandler(async (req: Request, res: Response) => {
