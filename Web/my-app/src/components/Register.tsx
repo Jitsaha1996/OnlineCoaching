@@ -14,15 +14,13 @@ import {
 } from '@mui/material';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { isValid, z } from "zod";
 import { useDispatch, useSelector } from 'react-redux';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useNavigate, useRevalidator } from 'react-router-dom';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
 import { setStudent } from '../redux/studentsSlice';
-import {setTeacher} from '../redux/teachersSlice';
+import { setTeacher } from '../redux/teachersSlice';
 import { RootState } from '../redux/store';
 import imageCompression from 'browser-image-compression';
 import { IStudents } from '../common/IStudents';
@@ -72,7 +70,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const validationSchema = z.object({
     // userType: z.string().min(1, "User Type is required"),
     sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
-    tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
+    // tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
     email: z.string().email("Invalid email address"),
     dob: z.string().refine((date) => {
         const birthDate = new Date(date);
@@ -118,7 +116,7 @@ const Register: React.FC = () => {
     const [formData, setFormData] = useState<any>({
         userType: "",
         sName: "",
-        tName: "",
+        // tName: "",
         parentEmail: "",
         parentPhone: "",
         sclass: "",
@@ -136,6 +134,16 @@ const Register: React.FC = () => {
 
     const [imagePreview, setImagePreview] = useState<any>(null);
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false); // New state for photo upload status
+    const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    const checkValidity = async () => {
+      const valid = await validationSchema.isValid(formData);
+      setIsValid(valid);
+    };
+
+    checkValidity();
+  }, [formData]);
 
     useEffect(() => {
         if (studentData) {
@@ -201,6 +209,11 @@ const Register: React.FC = () => {
         }
 
         try {
+
+            const selectedName =
+                formData.userType === "Student" ? "sName" : "tName";
+                
+
             const selectedClass =
                 formData.sclass === "Others" ? formData.sclassOther : formData.sclass;
 
@@ -209,7 +222,7 @@ const Register: React.FC = () => {
 
             const user=formData.userType.toLowerCase();
 
-            const apiUrl=`http://localhost:5000/api/${user}s/register`;
+             const apiUrl=`http://localhost:5000/api/${user}s/register`;
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -221,6 +234,7 @@ const Register: React.FC = () => {
                     ...formData,
                     isArchived: false,
                     // userType: "student",
+                    selectedName : formData.sName,
                     sclass: selectedClass,
                     qualification: selectedQualification,
 
@@ -229,7 +243,7 @@ const Register: React.FC = () => {
 
             if (!response.ok) throw new Error('Registration failed');
             const userData = await response.json();
-            if(user === "student"){
+             if(user === "student"){
                 dispatch(setStudent(userData)); // Dispatch user data to Redux store
             }
             else if(user === "teacher"){
@@ -244,12 +258,12 @@ const Register: React.FC = () => {
             // Use a timeout to delay the navigation so that toaster can show
             setTimeout(() => {
                 setLoading(false); // Stop loading
-                navigate('/${user}-details');
+                navigate(`/${user}-details`);
             }, 1500);
 
             setFormData({
                 sName: "",
-                tName: "",
+                // tName: "",
                 parentEmail: "",
                 parentPhone: "",
                 sclass: "",
@@ -331,11 +345,11 @@ const Register: React.FC = () => {
                     </FormControl>
                     <TextField
                         fullWidth
-                        {...register(formData?.userType === "Student"? "sName": "tName")} error={!!errors[formData?.userType === "Student" ? "sName" : "tName"]} helperText={errors[formData?.userType === "Student" ? "sName" : "tName"]?.message}
+                        {...register("sName")} error={!!errors.sName} helperText={errors.sName?.message}
                         label="Name"
-                        name = {formData?.userType === "Student"? "sName": "tName"}
+                        name = "sName"
                         variant="outlined"
-                        value={formData?.userType === "Student"? formData.sName: formData.tName}
+                        value={formData?.sName}
                         onChange={handleChange}
                         required
                     />
@@ -571,7 +585,7 @@ const Register: React.FC = () => {
                                 transform: 'scale(1.05)',
                             },
                         }}
-                        disabled={loading} // Disable button when loading
+                        disabled={!isValid}  // Disable button when loading
                     >
                         {loading ? <CircularProgress size={24} /> : 'Register'}
                     </StyledButton>
