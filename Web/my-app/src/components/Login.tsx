@@ -78,66 +78,64 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        const url = formData?.userType === "Student"
-            ? "https:/localhost:5000/api/students/login"
-            : formData?.userType === "Teacher"
-            ? "https:/localhost:5000/api/teachers/login"
-            : "";
+    
+        const url =
+            formData?.userType === "Student"
+                ? "http://localhost://5000/api/students/login"
+                : formData?.userType === "Teacher"
+                ? "http://localhost://5000/api/teachers/login"
+                : "";
+    
         if (!url) {
             setError("Invalid user type");
             setLoading(false);
             return;
         }
-        
+    
         try {
-            
-            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'origin': 'http://localhost:5000', // Adjust the origin as needed
-                    // 'Access-Control-Allow-Origin': '*',
                 },
-                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, password: formData.password }),
+                body: JSON.stringify({
+                    userType: formData.userType,
+                    phone: formData.phone,
+                    password: formData.password,
+                }),
             });
-
-            if (!response.ok) {
-                setToasterMessage("Invalid email or password");
+    
+            const data = await response.json();
+    
+            if (!response.ok || data?.success === false) {
+                setToasterMessage(data?.message || "Invalid email or password");
                 setToasterSeverity('error');
                 setToasterOpen(true);
-                throw new Error('Invalid email or password');
+                throw new Error(data?.message || 'Login failed');
             }
-            else{
-                const data = await response.json();
+    
             dispatch(setStudent(data));
             setToasterMessage("Login successful!");
             setToasterSeverity('success');
             setToasterOpen(true);
+    
             if (formData?.userType === "Student") {
                 navigate("/student-details");
             } else if (formData?.userType === "Teacher") {
                 navigate("/teacher-details");
             }
-            setLoading(false);
-
+    
             setTimeout(() => {
                 setLoading(false);
                 navigate('/home');
             }, 1500);
-            
-            }
-
-            
-
-
+    
         } catch (err: any) {
             setError(err.message);
             setLoading(false);
         }
-
-        
     };
+    
 
     const handleForgetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
