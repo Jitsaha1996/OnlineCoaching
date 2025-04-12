@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setStudent } from '../redux/studentsSlice';
 import { RootState } from '../redux/store';
 import { IStudents } from '../common/IStudents';
+import { ITeachers } from '../common/ITeachers';
 const StyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -57,11 +58,11 @@ const Login: React.FC = () => {
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
     const [formData, setFormData] = useState<any>({
         password: "",
-        //email: "",
+      //  email: "",
         phone: "",
         userType: "",
-        newPassword: "",
-        confirmPassword: ""
+        // newPassword: "",
+        // confirmPassword: ""
     });
 
     useEffect(() => {
@@ -78,66 +79,64 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        const url = formData?.userType === "Student"
-            ? "https:/localhost:5000/api/students/login"
-            : formData?.userType === "Teacher"
-            ? "https:/localhost:5000/api/teachers/login"
-            : "";
+    
+        const url =
+            formData?.userType === "Student"
+                ? "http://localhost:5000/api/students/login"
+                : formData?.userType === "Teacher"
+                ? "http://localhost:5000/api/teachers/login"
+                : "";
+    
         if (!url) {
             setError("Invalid user type");
             setLoading(false);
             return;
         }
-        
+    
         try {
-            
-            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'origin': 'http://localhost:5000', // Adjust the origin as needed
-                    // 'Access-Control-Allow-Origin': '*',
                 },
-                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, password: formData.password }),
+                body: JSON.stringify({
+                    userType: formData.userType,
+                    phone: formData.phone,
+                    password: formData.password,
+                }),
             });
-
-            if (!response.ok) {
-                setToasterMessage("Invalid email or password");
+    
+            const data = await response.json();
+    
+            if (!response.ok || data?.success === false) {
+                setToasterMessage(data?.message || "Invalid phone or password");
                 setToasterSeverity('error');
                 setToasterOpen(true);
-                throw new Error('Invalid email or password');
+                throw new Error(data?.message || "Login failed");
             }
-            else{
-                const data = await response.json();
+    
             dispatch(setStudent(data));
             setToasterMessage("Login successful!");
             setToasterSeverity('success');
             setToasterOpen(true);
+    
             if (formData?.userType === "Student") {
                 navigate("/student-details");
             } else if (formData?.userType === "Teacher") {
                 navigate("/teacher-details");
             }
-            setLoading(false);
-
+    
             setTimeout(() => {
                 setLoading(false);
                 navigate('/home');
             }, 1500);
-            
-            }
-
-            
-
-
+    
         } catch (err: any) {
             setError(err.message);
             setLoading(false);
         }
-
-        
     };
+    
 
     const handleForgetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -152,9 +151,9 @@ const Login: React.FC = () => {
 
         try {
             const url = formData?.userType === "Student"
-                ? "https:/localhost:5000/api/students/forgetPassword"
+                ? "https://localhost:5000/api/students/forgetPassword"
                 : formData?.userType === "Teacher"
-                ? "https:/localhost:5000/api/teachers/forgetPassword"
+                ? "https://localhost:5000/api/teachers/forgetPassword"
                 : "";
             
             if (!url) {
@@ -168,7 +167,7 @@ const Login: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userType, email: formData.email, newPassword: formData.newPassword }),
+                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, newPassword: newPassword }),
             });
             
 
@@ -201,7 +200,7 @@ const Login: React.FC = () => {
         setFormData({ ...formData, [name]: value });
     }
     const handleChange = (e: any, index?: number) => {
-        console.log("input element", e);
+        
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
@@ -257,7 +256,7 @@ const Login: React.FC = () => {
                                     margin="normal"
                                     variant="outlined"
                                     value={formData.newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    onChange={handleChange}
                                     required
                                     disabled={loading}
                                     sx={{
@@ -272,7 +271,7 @@ const Login: React.FC = () => {
                                     margin="normal"
                                     variant="outlined"
                                     value={formData.confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={handleChange}
                                     required
                                     disabled={loading}
                                     sx={{
@@ -310,7 +309,7 @@ const Login: React.FC = () => {
                                     margin="normal"
                             
                                     variant="outlined"
-                                    value={formData.email}
+                                    value={formData.phone}
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
