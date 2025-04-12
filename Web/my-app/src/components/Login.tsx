@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setStudent } from '../redux/studentsSlice';
 import { RootState } from '../redux/store';
 import { IStudents } from '../common/IStudents';
+import { ITeachers } from '../common/ITeachers';
 const StyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -111,7 +112,7 @@ const Login: React.FC = () => {
                 setToasterMessage(data?.message || "Invalid email or password");
                 setToasterSeverity('error');
                 setToasterOpen(true);
-                throw new Error(data?.message || 'Login failed');
+                throw new Error(data?.message || "Login failed");
             }
     
             dispatch(setStudent(data));
