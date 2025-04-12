@@ -53,7 +53,49 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
       type: String,
         required: true,
     },
+    examDetails: [
+                    {
+                      examName: {
+                        type: String,
+                        required: true,
+                      },
+                      examDate: {
+                        type: Date,
+                        required: true,
+                      },
+                      marksObtained: {
+                        type: Number,
+                        required: true,
+                      },
+                      totalMarks: {
+                        type: Number,
+                        required: true,
+                      },
+                      remarks: {
+                        type: String,
+                        required: true,
+                      },
+                    },
+                  ],
+
+    teacherDetails: [
+                      {
+                        teacherName: {
+                          type: String,
+                          required: true,
+                        },
+                        teacherId: {
+                          type: String,
+                          required: true,
+                        },
+                        subject: {
+                          type: String,
+                          required: true,
+                        },
+                      },
+                    ],
   },
+
   {
     timestamps: true,
   }
