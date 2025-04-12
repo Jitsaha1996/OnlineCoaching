@@ -57,7 +57,8 @@ const Login: React.FC = () => {
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
     const [formData, setFormData] = useState<any>({
         password: "",
-        email: "",
+        //email: "",
+        phone: "",
         userType: "",
         newPassword: "",
         confirmPassword: ""
@@ -77,51 +78,65 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        if (formData?.userType === "Student") {
-            navigate("/student-details");
-        } else if (formData?.userType === "Teacher") {
-            navigate("/teacher-details");
+        const url = formData?.userType === "Student"
+            ? "https:/localhost:5000/api/students/login"
+            : formData?.userType === "Teacher"
+            ? "https:/localhost:5000/api/teachers/login"
+            : "";
+        if (!url) {
+            setError("Invalid user type");
+            setLoading(false);
+            return;
         }
-        setLoading(false);
+        
+        try {
+            
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'origin': 'http://localhost:5000', // Adjust the origin as needed
+                    // 'Access-Control-Allow-Origin': '*',
+                },
+                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, password: formData.password }),
+            });
 
-        // try {
-        //     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ email, password }),
-        //     });
+            if (!response.ok) {
+                setToasterMessage("Invalid email or password");
+                setToasterSeverity('error');
+                setToasterOpen(true);
+                throw new Error('Invalid email or password');
+            }
+            else{
+                const data = await response.json();
+            dispatch(setStudent(data));
+            setToasterMessage("Login successful!");
+            setToasterSeverity('success');
+            setToasterOpen(true);
+            if (formData?.userType === "Student") {
+                navigate("/student-details");
+            } else if (formData?.userType === "Teacher") {
+                navigate("/teacher-details");
+            }
+            setLoading(false);
 
-        //     if (!response.ok) {
-        //         setToasterMessage("Invalid email or password");
-        //         setToasterSeverity('error');
-        //         setToasterOpen(true);
-        //         throw new Error('Invalid email or password');
-        //     }
+            setTimeout(() => {
+                setLoading(false);
+                navigate('/home');
+            }, 1500);
+            
+            }
 
-        //     const data = await response.json();
-        //     dispatch(setStudent(data));
-        //     setToasterMessage("Login successful!");
-        //     setToasterSeverity('success');
-        //     setToasterOpen(true);
-
-        //     setTimeout(() => {
-        //         setLoading(false);
-        //         navigate('/home');
-        //     }, 1500);
-        //     setFormData({
-        //         userType: "",
-        //         password: "",
-        //         email: ""
-
-        //     });
+            
 
 
-        // } catch (err: any) {
-        //     setError(err.message);
-        //     setLoading(false);
-        // }
+        } catch (err: any) {
+            setError(err.message);
+            setLoading(false);
+        }
+
+        
     };
 
     const handleForgetPassword = async (e: React.FormEvent) => {
@@ -135,42 +150,50 @@ const Login: React.FC = () => {
             return;
         }
 
-        // try {
-        //     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/forgetpassword`, {
-        //         method: 'PUT',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({ email, newPassword }),
-        //     });
-        //     setFormData({
-        //         newPassword: "",
-        //         confirmPassword: ""
-
-        //     });
-
-        //     if (!response.ok) {
-        //         setToasterMessage("Error updating password");
-        //         setToasterSeverity('error');
-        //         setToasterOpen(true);
-        //         throw new Error('Error updating password');
-        //     }
-
-        //     setToasterMessage("Password changed successfully!");
-        //     setToasterSeverity('success');
-        //     setToasterOpen(true);
-
-        //     setTimeout(() => {
-        //         setIsForgetPassword(false);
-        //         setLoading(false);
-        //         navigate('/login'); // Redirect to login page
-        //     }, 1500);
+        try {
+            const url = formData?.userType === "Student"
+                ? "https:/localhost:5000/api/students/forgetPassword"
+                : formData?.userType === "Teacher"
+                ? "https:/localhost:5000/api/teachers/forgetPassword"
+                : "";
+            
+            if (!url) {
+                setError("Invalid user type");
+                setLoading(false);
+                return;
+            }
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userType, email: formData.email, newPassword: formData.newPassword }),
+            });
             
 
-        // } catch (err: any) {
-        //     setError(err.message);
-        //     setLoading(false);
-        // }
+            if (!response.ok) {
+                setToasterMessage("Error updating password");
+                setToasterSeverity('error');
+                setToasterOpen(true);
+                throw new Error('Error updating password');
+            }
+
+            setToasterMessage("Password changed successfully!");
+            setToasterSeverity('success');
+            setToasterOpen(true);
+
+            setTimeout(() => {
+                setIsForgetPassword(false);
+                setLoading(false);
+                navigate('/login'); // Redirect to login page
+            }, 1500);
+            
+
+        } catch (err: any) {
+            setError(err.message);
+            setLoading(false);
+        }
     };
     const handleChangeSelect = (e: any) => {
         console.log("input element", e);
@@ -213,11 +236,12 @@ const Login: React.FC = () => {
                         {isForgetPassword ? (
                             <>
                                 <TextField
-                                    label="Email"
+                                    label="Phone Number"
+                                    name='phone'
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
-                                    value={formData.email}
+                                    value={formData.phone}
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
@@ -280,10 +304,11 @@ const Login: React.FC = () => {
                                 </FormControl>
 
                                 <TextField
-                                    label="Email"
+                                    label="Phone Number"
+                                    name='phone'
                                     fullWidth
                                     margin="normal"
-                                    name='email'
+                            
                                     variant="outlined"
                                     value={formData.email}
                                     onChange={handleChange}
