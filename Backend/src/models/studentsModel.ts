@@ -64,11 +64,11 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                         required: true,
                       },
                       marksObtained: {
-                        type: Number,
+                        type: String,
                         required: true,
                       },
                       totalMarks: {
-                        type: Number,
+                        type: String,
                         required: true,
                       },
                       remarks: {
@@ -85,6 +85,10 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                           required: true,
                         },
                         teacherId: {
+                          type: String,
+                          required: true,
+                        },
+                        teacherEmail: {
                           type: String,
                           required: true,
                         },
