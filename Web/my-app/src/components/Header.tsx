@@ -3,6 +3,12 @@ import { AppBar, Toolbar, Button, IconButton, Avatar, useTheme, Box, Drawer, Lis
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { RootState } from '../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { IStudents } from '../common/IStudents';
+import { ITeachers } from '../common/ITeachers';
+import { clearStudent } from '../redux/studentsSlice';
+
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#E3F2FD', // Light blue background
@@ -31,6 +37,8 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+
+
 const MenuContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     display: 'none',
@@ -49,6 +57,7 @@ const WelcomeText = styled(Typography)(({ theme }) => ({
 
 const Header: React.FC = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -56,15 +65,23 @@ const Header: React.FC = () => {
     setDrawerOpen(open);
   };
 
+  const studentData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
+  const teacherData = useSelector((state: RootState) => state.teachers.teachersData) as ITeachers | null;
+  console.log("student",studentData,teacherData)
+  const handleLogOut =() =>{
+    console.log("I am in inside logout")
+    dispatch(clearStudent())
+  }
   const menuItems = [
     { text: 'Home', onClick: () => navigate('/') },
     { text: 'About', onClick: () => navigate('/about') },
     { text: 'Contact', onClick: () => navigate('/contact') },
     { text: 'Admin', onClick: () => navigate('/admin-panel') },
-    { text: 'Register', onClick: () => navigate('/register') },
-    { text: 'Login', onClick: () => navigate('/login') },
-
+    studentData || teacherData
+      ? { text: 'Log Out', onClick: () => handleLogOut() }
+      : { text: 'Login', onClick: () => navigate('/login') },
   ];
+  
 
   return (
     <>
@@ -76,10 +93,18 @@ const Header: React.FC = () => {
           
           <NavButton onClick={() => navigate('/')}>Home</NavButton>
           <NavButton onClick={() => navigate('/about')}>About</NavButton>
-          <NavButton onClick={() => navigate('/login')}>Login</NavButton> 
+          {
+            studentData || teacherData ? <NavButton onClick={() => handleLogOut()}>Log Out</NavButton> :<NavButton onClick={() => navigate('/login')}>Login</NavButton> 
+          }
+          {/* if(studentData | teacherData){
+            
+          }
+          else{
+            <NavButton onClick={() => navigate('/login')}>Login</NavButton> 
+          } */}
+          
           <NavButton onClick={() => navigate('/contact')}>Contact</NavButton>
-          <NavButton onClick={() => navigate('/admin-panel')}>Admin</NavButton>
-          <NavButton onClick={() => navigate('/register')}>Register</NavButton>          
+          <NavButton onClick={() => navigate('/admin-panel')}>Admin</NavButton>          
           
           <WelcomeText>Welcome to Online Coaching</WelcomeText>
           
