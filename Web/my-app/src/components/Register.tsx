@@ -70,7 +70,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const validationSchema = z.object({
     // userType: z.string().min(1, "User Type is required"),
     sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
-    // tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
+    //tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
     email: z.string().email("Invalid email address"),
     dob: z.string().refine((date) => {
         const birthDate = new Date(date);
@@ -136,15 +136,8 @@ const Register: React.FC = () => {
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false); // New state for photo upload status
     const [isValid, setIsValid] = useState(false);
 
-  useEffect(() => {
-    const checkValidity = async () => {
-      const valid = await validationSchema.isValid(formData);
-      setIsValid(valid);
-    };
 
-    checkValidity();
-  }, [formData]);
-
+   
     useEffect(() => {
         if (studentData) {
             navigate("/student-details");
@@ -211,7 +204,7 @@ const Register: React.FC = () => {
         try {
 
             const selectedName =
-                formData.userType === "Student" ? "sName" : "tName";
+            formData.userType === "Student" ? "sName" : "tName";
                 
 
             const selectedClass =
@@ -234,7 +227,7 @@ const Register: React.FC = () => {
                     ...formData,
                     isArchived: false,
                     // userType: "student",
-                    selectedName : formData.sName,
+                    selectedName: formData.sName,
                     sclass: selectedClass,
                     qualification: selectedQualification,
 
@@ -457,6 +450,7 @@ const Register: React.FC = () => {
                         </FormControl>
                         <TextField
                         fullWidth
+                        {...register("parentPhone")} error={!!errors.phone} helperText={errors.parentPhone?.message}
                         label="Parent's Phone Number"
                         name="parentPhone"
                         type="tel"
@@ -467,6 +461,7 @@ const Register: React.FC = () => {
                         /> 
                         <TextField
                         fullWidth
+                        {...register("parentEmail")} error={!!errors.email} helperText={errors.parentEmail?.message}
                         label="Parent's Email"
                         name="parentEmail"
                         type="email"
@@ -585,7 +580,7 @@ const Register: React.FC = () => {
                                 transform: 'scale(1.05)',
                             },
                         }}
-                        disabled={!isValid}  // Disable button when loading
+                        disabled={loading}  // Disable button when loading
                     >
                         {loading ? <CircularProgress size={24} /> : 'Register'}
                     </StyledButton>

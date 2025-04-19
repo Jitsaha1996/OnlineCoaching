@@ -33,6 +33,7 @@ export const getQualification = async (req: Request, res: Response) => {
              return;
         }
         res.json({
+            
             _id: qualification._id,
             name: qualification.name,
             description: qualification.description,

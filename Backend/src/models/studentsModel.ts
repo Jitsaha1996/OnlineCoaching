@@ -93,6 +93,10 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                           type: String,
                           required: true,
                         },
+                        teacherEmail: {
+                          type: String,
+                          required: true,
+                        },
                         subject: {
                           type: String,
                           required: false,

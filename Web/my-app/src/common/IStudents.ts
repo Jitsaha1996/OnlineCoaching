@@ -7,4 +7,5 @@ export interface IStudents extends IGenerics {
     parentEmail?: string;
     parentPhone?: string;
     sclass: string;
+    token?: string;
 }
