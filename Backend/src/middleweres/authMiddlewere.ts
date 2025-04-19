@@ -2,7 +2,12 @@ import asyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/userModel";
-
+import { IStudents } from "../common/IStudents";
+import { ITeachers } from "../common/ITeachers";
+import { IQualification } from "../common/IQualification";
+import StudentTS from "../models/studentsModel";
+import TeacherTS from "../models/teachersModel";
+import Qualification from "../models/qualificationModel";
 // Extend the Request interface to include user property
 interface AuthenticatedRequest extends Request {
     user?: {

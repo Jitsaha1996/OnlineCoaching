@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Qualification from '../models/qualificationModel'; 
 
+
 // Add a new qualification
 export const addQualification = async (req: Request, res: Response) => {
     try {

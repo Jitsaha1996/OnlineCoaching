@@ -6,7 +6,7 @@ import {
   registerTeachers, 
   authTeachers, 
   getTeachersList, 
-  // editTeachers, 
+  editTeachers, 
   // getTeachersByEmail 
   forgetPasswords
 } from "../controllers/teacherController";
@@ -120,7 +120,7 @@ import {
  *             type: object
  *             properties:
  *               userType:
- *                type: string
+ *                 type: string
  *               phone:
  *                 type: string
  *                 example: "1234567890"
@@ -208,8 +208,8 @@ import {
  *         description: Teacher not found
  * /api/teachers/:
  *   get:
- *     summary: all teacher list
- *     description: after login or register ,,get the list of all teacher .
+ *     summary: All teacher list
+ *     description: After login or register, get the list of all teachers.
  *     tags:
  *       - Teachers
  *     responses:
@@ -245,11 +245,78 @@ import {
  *         description: Unauthorized, invalid phone or password
  *       400:
  *         description: Bad request, missing phone or password
+ * /api/teachers/edit:
+ *   put:
+ *     summary: Edit teacher details
+ *     description: Allows a teacher to edit their details.
+ *     tags:
+ *       - Teachers
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               pic:
+ *                 type: string
+ *                 example: "base64encodedstring"
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 example: "2000-01-01"
+ *               email:
+ *                 type: string
+ *                 example: "john.doe@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "1234567890"
+ *               isArchived:
+ *                 type: boolean
+ *                 example: false
+ *               qualification:
+ *                 type: string
+ *                 example: "BTech"
+ *               experience:
+ *                 type: string
+ *                 example: "2 years"
+ *               isModified:
+ *                 type: boolean
+ *                 example: false
+ *               isAdmin:
+ *                 type: boolean
+ *                 example: false
+ * 
+ *     responses:
+ *       200:
+ *         description: Teacher details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Teacher details updated successfully"
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *       400:
+ *         description: Bad request, invalid input
+ *       404:
+ *         description: Teacher not found
  */
+ 
 // Define routes
 router.route('/register').post(registerTeachers);
 router.route('/').get(getTeachersList);
-// router.route('/edit').put(editTeachers);
+router.route('/edit').put(editTeachers);
 router.route('/login').post(authTeachers);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
 router.route('/forgetPassword').put(forgetPasswords);
