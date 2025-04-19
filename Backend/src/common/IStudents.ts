@@ -23,4 +23,19 @@ export interface IStudents extends IGenerics, Document {
             subject: string;
         }
     ];
+    notes: [
+        {   notesID: string;
+            noteName: string;
+            noteDescription: string;
+            createdAt: Date;
+        }
+   
+    ];
+    paymentDetails: [
+        {   paymentID: string;
+            paymentDate: Date;
+            amount: string;
+            status: string;
+        }
+    ];
 }

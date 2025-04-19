@@ -6,7 +6,7 @@ import {
   registerStudents, 
   authStudents, 
   getStudentsList, 
-  // editStudents, 
+  editStudents, 
   // getStudentsByEmail 
   forgetPasswords
 } from "../controllers/studentController";
@@ -180,8 +180,8 @@ import {
  *         description: Student not found
  * /api/students/:
  *   get:
- *     summary: all student list
- *     description: after login or register ,,get the list of all student .
+ *     summary: All student list
+ *     description: After login or register, get the list of all students.
  *     tags:
  *       - Students
  *     responses:
@@ -209,7 +209,29 @@ import {
  *                   example: "student"
  *                 phone:
  *                   type: string
- *                   example: "1234567890"
+ *                   example: "1234567890"         
+ *                 dob:
+ *                   type: string
+ *                   format: date
+ *                   example: "2000-01-01"
+ *                 sclass:
+ *                   type: string
+ *                   example: "10th Grade"
+ *                 gender:
+ *                   type: string
+ *                   example: "male"
+ *                 parentEmail:
+ *                   type: string
+ *                   example: "parent@gmail.com"
+ *                 parentPhone:
+ *                   type: string
+ *                   example: "9876543210"
+ *                 paymentDetails:
+ *                   type: array
+ *                 examDetails:
+ *                   type: array
+ *                 notes:
+ *                   type: array
  *                 token:
  *                   type: string
  *                   example: "jwt_token_here"
@@ -217,11 +239,78 @@ import {
  *         description: Unauthorized, invalid phone or password
  *       400:
  *         description: Bad request, missing phone or password
+ * /api/students/edit:
+ *   put:
+ *     summary: Edit student details
+ *     description: Allows a student to edit their details.
+ *     tags:
+ *       - Students
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               sName:
+ *                 type: string
+ *                 example: "John Doe"
+ *               pic:
+ *                 type: string
+ *                 example: "base64encodedstring"
+ *               email:
+ *                 type: string
+ *                 example: "john.doe@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "1234567890"
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *                 example: "2000-01-01"
+ *               gender:
+ *                 type: string
+ *                 example: "male"
+ *               parentEmail:
+ *                 type: string
+ *                 example: "parent@example.com"
+ *               parentPhone:
+ *                 type: string
+ *                 example: "9876543210"
+ *               sclass:
+ *                 type: string
+ *                 example: "10th Grade"
+ *               isArchived:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Student details updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Student details updated successfully"
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *       400:
+ *         description: Bad request, invalid input
+ *       404:
+ *         description: Student not found
  */
+
+
 // Define routes
 router.route('/register').post(registerStudents);
 router.route('/').get(getStudentsList);
-// router.route('/edit').put(editStudents);
+router.route('/edit').put(editStudents);
 router.route('/login').post(authStudents);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
 router.route('/forgetPassword').put(forgetPasswords);
