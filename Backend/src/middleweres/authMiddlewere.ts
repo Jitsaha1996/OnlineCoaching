@@ -28,24 +28,36 @@ const protect = asyncHandler(async (req: AuthenticatedRequest, res: Response, ne
 
             // Decodes token and verifies it
             const decoded = jwt.verify(token, process.env.JWT_SECRET || "") as JwtPayload;
-
-            // Find user by ID from decoded token
-            const user = await User.findById(decoded.id).select("-password");
-
-            if (!user) {
+            console.log("Decoded token:", decoded);
+           if(decoded.exp && decoded.exp < Date.now() / 1000) { 
                 res.status(401);
-                throw new Error("Not authorized, user not found");
-            }
+                throw new Error("Token expired, please log in again");  
+           }
 
-            req.user = {
-                id: user._id.toString(),
-                ...user.toObject(),
-            };
+           if(decoded.userType === "student"){
+                const student = await StudentTS.findById(decoded.id).select("-password") as IStudents;
+                if (!student) {
+                    res.status(401);
+                    throw new Error("Not authorized, user not found");
+                }
 
+           }else if(decoded.userType === "teacher"){
+                const teacher = await TeacherTS.findById(decoded.id).select("-password") as ITeachers;
+                if (!teacher) {
+                    res.status(401);
+                    throw new Error("Not authorized, user not found");
+                }
+                
+           }
+          
             next();
         } catch (error) {
             res.status(401);
-            throw new Error("Not authorized, token failed");
+            if (error instanceof Error) {
+                throw new Error(`${error.message}`);
+            } else {
+                throw new Error("An unknown error occurred");
+            }
         }
     } else {
         res.status(401);
