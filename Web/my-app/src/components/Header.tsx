@@ -96,12 +96,6 @@ const Header: React.FC = () => {
           {
             studentData || teacherData ? <NavButton onClick={() => handleLogOut()}>Log Out</NavButton> :<NavButton onClick={() => navigate('/login')}>Login</NavButton> 
           }
-          {/* if(studentData | teacherData){
-            
-          }
-          else{
-            <NavButton onClick={() => navigate('/login')}>Login</NavButton> 
-          } */}
           
           <NavButton onClick={() => navigate('/contact')}>Contact</NavButton>
           <NavButton onClick={() => navigate('/admin-panel')}>Admin</NavButton>          
