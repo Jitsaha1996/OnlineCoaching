@@ -7,6 +7,7 @@ import {
     getQualification,
     // deleteQualification,
 } from '../controllers/qualificationController';
+import { protect } from '../middleweres/authMiddlewere';
 /**
  * @swagger
  * /api/qualification/add:
@@ -51,29 +52,34 @@ import {
  * /api/qualification/:
  *   get:
  *     summary: Get all qualifications
- *     description: Retrieve a list of all qualifications.
+ *     description: Retrieve a list of all qualifications. Requires a Bearer token.
  *     tags:
  *       - Qualifications
+ *     security:
+ *       - bearerAuth: []
  *     responses:
- *       201:
+ *       200:
  *         description: A list of qualifications
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                   example: "60b7c3f3b509b734d4ef1a88"
- *                 name:
- *                   type: string
- *                   example: "BTech"
- *                 description:
- *                   type: string
- *                   example: "Bachelor of Technology in Computer Science"
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "60b7c3f3b509b734d4ef1a88"
+ *                   name:
+ *                     type: string
+ *                     example: "BTech"
+ *                   description:
+ *                     type: string
+ *                     example: "Bachelor of Technology in Computer Science"
  *       400:
  *         description: Bad request, invalid input
- * 
+ *       401:
+ *         description: Unauthorized, token missing or invalid
  * /api/qualification/getone:
  *   get:
  *     summary: Get a single qualification
@@ -107,10 +113,10 @@ import {
  *       400:
  *         description: Bad request, invalid input
  */
-router.route('/add').post(addQualification);
-router.route('/').get(getAllQualification);
+router.route('/add').post(protect,addQualification);
+router.route('/').get(protect,getAllQualification);
 // router.route('/edit').put(editQualification);    
-router.route('/getone').get(getQualification);      
+router.route('/getone').get(protect,getQualification);      
 // router.route('/delete').delete(deleteQualification);
 
 

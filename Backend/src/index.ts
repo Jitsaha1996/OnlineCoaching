@@ -50,13 +50,29 @@ const swaggerOptions = {
             description: "API documentation for student and teacher management",
         },
         servers: [{ url: "http://localhost:5000" }],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
+        security: [
+            {
+                bearerAuth: [],
+            },
+        ],
     },
     apis: ["./src/routers/*.ts"], // Ensure correct relative path
 };
 
+
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/students/', studentsRoutes);
+app.use('/api/teachers/', teachersRoutes);
 app.use('/api/qualification/', qualificationRoutes);
 
 
