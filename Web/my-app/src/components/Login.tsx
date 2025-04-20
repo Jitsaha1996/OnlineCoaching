@@ -39,10 +39,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 
 const Login: React.FC = () => {
-    // const [email, setEmail] = useState('');
-    // const [password, setPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    
     const [userType, setuserType] = useState('');
     const userTypeOptions = ["Student", "Teacher"];
     const [error, setError] = useState('');
@@ -81,17 +78,17 @@ const Login: React.FC = () => {
         const url = formData?.userType === "Student"
             ? "https:/localhost:5000/api/students/login"
             : formData?.userType === "Teacher"
-            ? "https:/localhost:5000/api/teachers/login"
-            : "";
+                ? "https:/localhost:5000/api/teachers/login"
+                : "";
         if (!url) {
             setError("Invalid user type");
             setLoading(false);
             return;
         }
-        
+
         try {
-            
-            
+
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -108,27 +105,27 @@ const Login: React.FC = () => {
                 setToasterOpen(true);
                 throw new Error('Invalid email or password');
             }
-            else{
+            else {
                 const data = await response.json();
-            dispatch(setStudent(data));
-            setToasterMessage("Login successful!");
-            setToasterSeverity('success');
-            setToasterOpen(true);
-            if (formData?.userType === "Student") {
-                navigate("/student-details");
-            } else if (formData?.userType === "Teacher") {
-                navigate("/teacher-details");
-            }
-            setLoading(false);
-
-            setTimeout(() => {
+                dispatch(setStudent(data));
+                setToasterMessage("Login successful!");
+                setToasterSeverity('success');
+                setToasterOpen(true);
+                if (formData?.userType === "Student") {
+                    navigate("/student-details");
+                } else if (formData?.userType === "Teacher") {
+                    navigate("/teacher-details");
+                }
                 setLoading(false);
-                navigate('/home');
-            }, 1500);
-            
+
+                setTimeout(() => {
+                    setLoading(false);
+                    navigate('/home');
+                }, 1500);
+
             }
 
-            
+
 
 
         } catch (err: any) {
@@ -136,7 +133,7 @@ const Login: React.FC = () => {
             setLoading(false);
         }
 
-        
+
     };
 
     const handleForgetPassword = async (e: React.FormEvent) => {
@@ -144,7 +141,7 @@ const Login: React.FC = () => {
         setError('');
         setLoading(true);
 
-        if (newPassword !== confirmPassword) {
+        if (formData.newPassword !== formData.confirmPassword) {
             setError("Passwords do not match");
             setLoading(false);
             return;
@@ -154,23 +151,23 @@ const Login: React.FC = () => {
             const url = formData?.userType === "Student"
                 ? "https:/localhost:5000/api/students/forgetPassword"
                 : formData?.userType === "Teacher"
-                ? "https:/localhost:5000/api/teachers/forgetPassword"
-                : "";
-            
+                    ? "https:/localhost:5000/api/teachers/forgetPassword"
+                    : "";
+
             if (!url) {
                 setError("Invalid user type");
                 setLoading(false);
                 return;
             }
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userType, email: formData.email, newPassword: formData.newPassword }),
+                body: JSON.stringify({ userType, phone: formData.phone, newPassword: formData.newPassword }),
             });
-            
+
 
             if (!response.ok) {
                 setToasterMessage("Error updating password");
@@ -188,7 +185,7 @@ const Login: React.FC = () => {
                 setLoading(false);
                 navigate('/login'); // Redirect to login page
             }, 1500);
-            
+
 
         } catch (err: any) {
             setError(err.message);
@@ -257,7 +254,8 @@ const Login: React.FC = () => {
                                     margin="normal"
                                     variant="outlined"
                                     value={formData.newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    onChange={handleChange}
+                                    name="newPassword"
                                     required
                                     disabled={loading}
                                     sx={{
@@ -272,7 +270,8 @@ const Login: React.FC = () => {
                                     margin="normal"
                                     variant="outlined"
                                     value={formData.confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={handleChange}
+                                    name="confirmPassword"
                                     required
                                     disabled={loading}
                                     sx={{
@@ -308,9 +307,9 @@ const Login: React.FC = () => {
                                     name='phone'
                                     fullWidth
                                     margin="normal"
-                            
+
                                     variant="outlined"
-                                    value={formData.email}
+                                    value={formData.phone}
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
