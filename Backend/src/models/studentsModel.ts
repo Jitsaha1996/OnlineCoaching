@@ -93,9 +93,9 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                           type: String,
                           required: true,
                         },
-                        teacherEmail: {
+                        teacherPhone: {
                           type: String,
-                          required: true,
+                          required: false,
                         },
                         subject: {
                           type: String,
@@ -115,6 +115,10 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
         },
         notesDescription: {
           type: String,
+          required: false,
+        },
+        notesDate: {
+          type: Date,
           required: false,
         },
       },
