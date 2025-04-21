@@ -27,6 +27,7 @@ import userRoutes from './routers/userRoutes'
 import studentsRoutes from "./routers/studentsRoutes";
 import teachersRoutes from "./routers/teachersRoutes";
 import qualificationRoutes from "./routers/qualificationRoutes"; 
+import classRoutes from "./routers/classRoutes";
 // const workoutRoutes = require('./routes/workoutRoutes');
 // const busSeatRoutes = require('./routes/busSeatRoutes');
 // const announcementRoutes = require('./routes/announcementRoutes');
@@ -74,6 +75,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/students/', studentsRoutes);
 app.use('/api/teachers/', teachersRoutes);
 app.use('/api/qualification/', qualificationRoutes);
+app.use('/api/class/', classRoutes);
 
 
 // app.use('/api/workouts', workoutRoutes);
