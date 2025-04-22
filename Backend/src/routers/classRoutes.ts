@@ -5,7 +5,7 @@ import {
     getAllClass,
     editClass,
     getClass,
-    // deleteQualification,
+    deleteClass,
 } from '../controllers/classController';
 import { protect } from '../middleweres/authMiddlewere';
 /**
@@ -15,7 +15,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *     summary: Add class
  *     description: Admin can add class.
  *     tags:
- *       - Classes
+ *       - Class
  *     requestBody:
  *       required: true
  *       content:
@@ -31,7 +31,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *                 example: "10th grade"
  *     responses:
  *       201:
- *         description: Qualification added successfully
+ *         description: Class added successfully
  *         content:
  *           application/json:
  *             schema:
@@ -45,19 +45,19 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "BTech"
  *                 classDescription:
  *                   type: string
- *                   example: "Bachelor of Technology in Computer Science"
+ *                   example: "10"
  *       400:
  *         description: Bad request, invalid input
  *
- * /api/class/:
+ * /api/class/getall:
  *   get:
- *     summary: Get all qualifications
- *     description: Retrieve a list of all qualifications.
+ *     summary: Get all class
+ *     description: Retrieve a list of all classes.
  *     tags:
- *       - Classes
+ *       - Class
  *     responses:
  *       201:
- *         description: A list of qualifications
+ *         description: A list of classes
  *         content:
  *           application/json:
  *             schema:
@@ -71,26 +71,26 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "BTech"
  *                 classDescription:
  *                   type: string
- *                   example: "Bachelor of Technology in Computer Science"
+ *                   example: "12"
  *       400:
  *         description: Bad request, invalid input
  * 
- * /api/qualification/getone:
+ * /api/class/getone:
  *   get:
- *     summary: Get a single qualification
- *     description: Retrieve details of a specific qualification using its name.
+ *     summary: Get a single class
+ *     description: Retrieve details of a specific class using its name.
  *     tags:
- *       - Qualifications
+ *       - Class
  *     parameters:
  *       - in: query
  *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         example: "BTech"
+ *         example: "9"
  *     responses:
  *       200:
- *         description: Qualification details
+ *         description: Class details
  *         content:
  *           application/json:
  *             schema:
@@ -104,7 +104,68 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "BTech"
  *                 description:
  *                   type: string
- *                   example: "Bachelor of Technology in Computer Science"
+ *                   example: "8"
+ *       400:
+ *         description: Bad request, invalid input
+ * 
+ * /api/class/edit:
+ *   put:
+ *     summary: Edit class
+ *     description: Admin can edit class details.
+ *     tags:
+ *       - Class
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               classId:
+ *                 type: string
+ *                 example: "60b7c3f3b509b734d4ef1a88"
+ *               className:
+ *                 type: string
+ *                 example: "12"
+ *               classDescription:
+ *                 type: string
+ *                 example: "12"
+ *     responses:
+ *       200:
+ *         description: Class updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "60b7c3f3b509b734d4ef1a88"
+ *                 className:
+ *                   type: string
+ *                   example: "12"
+ *                 classDescription:
+ *                   type: string
+ *                   example: "12"
+ *       400:
+ *         description: Bad request, invalid input
+ * 
+ * /api/class/delete:
+ *   delete:
+ *     summary: Delete class
+ *     description: Admin can delete a class.
+ *     tags:
+ *       - Class
+ *     parameters:
+ *       - in: query
+ *         name: classId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "60b7c3f3b509b734d4ef1a88"
+ *     responses:
+ *       200:
+ *         description: Class successfully deleted
  *       400:
  *         description: Bad request, invalid input
  */
@@ -112,7 +173,7 @@ router.route('/add').post(protect,addClass);
 router.route('/').get(protect,getAllClass);
 router.route('/edit').put(protect,editClass);    
 router.route('/getone').get(protect,getClass);      
-// router.route('/delete').delete(deleteQualification);
+router.route('/delete').delete(protect,deleteClass);
 
 
 export default router;
