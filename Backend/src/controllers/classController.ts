@@ -12,7 +12,6 @@ export const addClass = async (req: Request, res: Response) => {
     }
 };
 
-
 // Get all class
 export const getAllClass = async (_req: Request, res: Response) => {
     try {
@@ -54,5 +53,19 @@ export const editClass = async (req: Request, res: Response) => {
         res.status(404).json(updatedClass);
     } catch (error) {
         res.status(400).json({ message: 'Error updating class', error });
+    }
+};
+// Delete a class by ID
+export const deleteClass = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const deletedClass = await Class.findByIdAndDelete(id);
+        if (!deletedClass) {
+            res.status(404).json({ message: "Class not found" });
+            return;
+        }
+        res.status(200).json({ message: "Class deleted" });
+    } catch (error) {
+        res.status(500).json({ message: 'Error in deleting class', error });
     }
 };
