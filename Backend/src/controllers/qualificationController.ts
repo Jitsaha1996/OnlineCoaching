@@ -26,7 +26,7 @@ export const getAllQualification = async (_req: Request, res: Response) => {
 // Get a single qualification by name
 export const getQualification = async (req: Request, res: Response) => {
     try {
-        const { name } = new Qualification(req.body);
+        const { name } = new Qualification(req.body||req.query);
         const qualification = await Qualification.findOne({ name });
         if (!qualification) {
              res.status(404).json({ message: "Qualification not found" });

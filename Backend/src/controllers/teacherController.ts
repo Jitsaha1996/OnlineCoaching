@@ -159,3 +159,20 @@ export const editTeachers = asyncHandler(async (req: Request, res: Response) => 
     throw new Error("Error Occurred");
   }
 });
+
+//getone by phone
+export const getTeachersOnlyisArch = asyncHandler(async (req: any, res: any) => {
+  try {
+    const teacherList = await Teacher.find({ isArchived: false }).select(
+      "_id tName phone email"
+    );
+
+    if (!teacherList.length) {
+      return res.status(204).json({ message: "No teachers found" });
+    }
+
+    res.status(200).json(teacherList);
+  } catch (error: any) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});

@@ -5,9 +5,9 @@ const router = express.Router();
 import { 
   registerTeachers, 
   authTeachers, 
+  getTeachersOnlyisArch,
   getTeachersList, 
   editTeachers, 
-  // getTeachersByEmail 
   forgetPasswords
 } from "../controllers/teacherController";
 /**
@@ -289,7 +289,6 @@ import {
  *               isAdmin:
  *                 type: boolean
  *                 example: false
- * 
  *     responses:
  *       200:
  *         description: Teacher details updated successfully
@@ -311,6 +310,45 @@ import {
  *         description: Bad request, invalid input
  *       404:
  *         description: Teacher not found
+ * /api/teachers/getExistTeachers:
+ *   get:
+ *     summary: Get texist teachers
+ *     description: Retrieves a list of teachers who are not archived.
+ *     tags:
+ *       - Teachers
+ *     parameters:
+ *       - name: isArchived
+ *         in: query
+ *         required: true
+ *         description: Filter for archived teachers
+ *         schema:
+ *           type: boolean
+ *           example: false
+ *          
+ *     responses:
+ *       200:
+ *         description: Teacher details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: "60b7c3f3b509b734d4ef1a88"
+ *                 tName:
+ *                   type: string
+ *                   example: "John Doe"
+ *                 email:
+ *                   type: string
+ *                   example: "john@gmail.com"
+ *                 phone:
+ *                   type: string
+ *                   example: "1234567890"
+ *       400:
+ *         description: Bad request, invalid input
+ *       404:
+ *         description: Teacher not found
  */
  
 // Define routes
@@ -320,7 +358,7 @@ router.route('/edit').put(editTeachers);
 router.route('/login').post(authTeachers);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
 router.route('/forgetPassword').put(forgetPasswords);
-// router.get('/email/:email', getTeachersByEmail);
+router.get('/getByPhone', getTeachersOnlyisArch);
 
 // Export router
 export default router;
