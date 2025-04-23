@@ -1,4 +1,4 @@
-export interface Iclass {
+export interface IClass {
     id: string;
     className: string;
     classDescription?: string;

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { Iclass } from '../common/IClass';
+import { IClass } from '../common/IClass';
 
-const classSchemaTS: Schema<Iclass> = new mongoose.Schema(
+const classSchemaTS: Schema<IClass> = new mongoose.Schema(
   {
     className: {
       type: String,
@@ -19,6 +19,6 @@ const classSchemaTS: Schema<Iclass> = new mongoose.Schema(
   }
 );
 
-const Class = mongoose.model<Iclass>('Class', classSchemaTS);
+const Class = mongoose.model<IClass>('Class', classSchemaTS);
 
 export default Class;
