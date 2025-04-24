@@ -22,7 +22,7 @@ app.use(bodyParser.json({
 }));
 
 const dotenv=require('dotenv');
-import connectDb from './config/db'
+import connectDb from './config/db';
 import userRoutes from './routers/userRoutes'
 import studentsRoutes from "./routers/studentsRoutes";
 import teachersRoutes from "./routers/teachersRoutes";

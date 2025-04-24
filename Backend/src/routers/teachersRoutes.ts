@@ -5,11 +5,12 @@ const router = express.Router();
 import { 
   registerTeachers, 
   authTeachers, 
-  getTeachersOnlyisArch,
+  getActiveTeachers,
   getTeachersList, 
   editTeachers, 
   forgetPasswords
 } from "../controllers/teacherController";
+import { protect } from "../middleweres/authMiddlewere";
 /**
  * @swagger
  * /api/teachers/register:
@@ -310,55 +311,50 @@ import {
  *         description: Bad request, invalid input
  *       404:
  *         description: Teacher not found
- * /api/teachers/getExistTeachers:
+ * 
+ * /api/teachers/getActiveTeachers:
  *   get:
- *     summary: Get texist teachers
- *     description: Retrieves a list of teachers who are not archived.
+ *     summary: Get active teachers
+ *     description: Returns a list of teachers with isArchived set to false.
  *     tags:
  *       - Teachers
- *     parameters:
- *       - name: isArchived
- *         in: query
- *         required: true
- *         description: Filter for archived teachers
- *         schema:
- *           type: boolean
- *           example: false
- *          
  *     responses:
  *       200:
- *         description: Teacher details retrieved successfully
+ *         description: List of active teachers
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                   example: "60b7c3f3b509b734d4ef1a88"
- *                 tName:
- *                   type: string
- *                   example: "John Doe"
- *                 email:
- *                   type: string
- *                   example: "john@gmail.com"
- *                 phone:
- *                   type: string
- *                   example: "1234567890"
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "60b7c3f3b509b734d4ef1a88"
+ *                   tName:
+ *                     type: string
+ *                     example: "John Doe"
+ *                   email:
+ *                     type: string
+ *                     example: "john.doe@example.com"
+ *                   phone:
+ *                     type: string
+ *                     example: "1234567890"
+ *                  
  *       400:
  *         description: Bad request, invalid input
  *       404:
- *         description: Teacher not found
+ *         description: No active teachers found
  */
  
 // Define routes
-router.route('/register').post(registerTeachers);
-router.route('/').get(getTeachersList);
-router.route('/edit').put(editTeachers);
-router.route('/login').post(authTeachers);
+router.route('/register').post(protect,registerTeachers);
+router.route('/').get(protect,getTeachersList);
+router.route('/edit').put(protect,editTeachers);
+router.route('/login').post(protect,authTeachers);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
-router.route('/forgetPassword').put(forgetPasswords);
-router.get('/getByPhone', getTeachersOnlyisArch);
+router.route('/forgetPassword').put(protect,forgetPasswords);
+router.route('/getActiveTeachers').get(protect,getActiveTeachers);
 
 // Export router
 export default router;
