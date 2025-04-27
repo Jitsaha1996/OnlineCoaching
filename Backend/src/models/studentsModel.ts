@@ -57,11 +57,12 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                     {
                       examName: {
                         type: String,
-                        required: true,
+                        required: false,
+                      
                       },
                       examDate: {
                         type: Date,
-                        required: true,
+                        required: false,
                       },
                       marksObtained: {
                         type: String,
@@ -73,7 +74,7 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                       },
                       remarks: {
                         type: String,
-                        required: true,
+                        required: false,
                       },
                     },
                   ],
@@ -82,22 +83,66 @@ const studentsSchemaTS: Schema<IStudents> = new mongoose.Schema(
                       {
                         teacherName: {
                           type: String,
-                          required: true,
+                          required: false,
                         },
                         teacherId: {
                           type: String,
-                          required: true,
+                          required: false,
                         },
                         teacherEmail: {
                           type: String,
                           required: true,
                         },
+                        teacherPhone: {
+                          type: String,
+                          required: false,
+                        },
                         subject: {
                           type: String,
-                          required: true,
+                          required: false,
                         },
                       },
                     ],
+    notes: [
+      {
+        notesID: {
+          type: String,
+          required: false,
+        },
+        notesName: {
+          type: String,
+          required: false,
+        },
+        notesDescription: {
+          type: String,
+          required: false,
+        },
+        notesDate: {
+          type: Date,
+          required: false,
+        },
+      },
+      ],
+    paymentDetails: [
+      {
+        paymentID: {
+          type: String,
+          required: false,
+        },
+        paymentDate: {
+          type: Date,
+          required: false,
+        },
+        amount: {
+          type: String,
+          required: false,
+        },
+        status: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
   },
 
   {

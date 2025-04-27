@@ -12,9 +12,8 @@ import {
     Backdrop,
     FormHelperText,
 } from '@mui/material';
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isValid, z } from "zod";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useRevalidator } from 'react-router-dom';
 import { styled } from '@mui/system';
@@ -27,6 +26,7 @@ import { IStudents } from '../common/IStudents';
 import { ITeachers } from '../common/ITeachers';
 import ImagePreview from '../Utils/ImagePreview';
 import Toaster from '../Utils/Toaster';
+import { z } from "zod";
 
 // Styled Box for form
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -67,10 +67,12 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-const validationSchema = z.object({
-    // userType: z.string().min(1, "User Type is required"),
-    sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
-    //tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters"),
+const baseSchema = z.object({
+    userType: z.enum(["Student", "Teacher"], {
+        required_error: "User Type is required",
+    }),
+    sName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters").optional(),
+    tName: z.string().min(2, "Name must be at least 2 characters").max(120, "Name cannot exceed 120 characters").optional(),
     email: z.string().email("Invalid email address"),
     dob: z.string().refine((date) => {
         const birthDate = new Date(date);
@@ -79,31 +81,105 @@ const validationSchema = z.object({
         return age >= 10 && age <= 80;
     }, "Age must be between 10 and 80 years"),
     phone: z.string().regex(/^[6789]\d{9}$/, "Phone number must be 10 digits and start with 6, 7, 8, or 9"),
-    password: z.string().min(10, "Password must be at least 10 characters").regex(/[A-Z]/, "Must contain at least one uppercase letter").regex(/[a-z]/, "Must contain at least one lowercase letter").regex(/\d/, "Must contain at least one number").regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
+    password: z.string()
+        .min(10, "Password must be at least 10 characters")
+        .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+        .regex(/[a-z]/, "Must contain at least one lowercase letter")
+        .regex(/\d/, "Must contain at least one number")
+        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
     confirmPassword: z.string(),
-    parentPhone: z.string().regex(/^[6789]\d{9}$/, "Phone number must be 10 digits and start with 6, 7, 8, or 9"),
-    parentEmail: z.string().email("Invalid email address"),
-}).refine((data) => {
-    console.log("Password:", data.password, "Confirm Password:", data.confirmPassword);
-    return data.password === data.confirmPassword;
-}, {
+    qualification: z.string().optional(),
+    qualificationOther: z.string().optional(),
+    sclass: z.string().optional(),
+    sclassOther: z.string().optional(),
+    parentPhone: z.string().optional(),
+    parentEmail: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+}).superRefine((data, ctx) => {
+    if (data.userType === "Student") {
+        if (!data.sName) {
+            ctx.addIssue({
+                path: ["sName"],
+                code: z.ZodIssueCode.custom,
+                message: "Name is required",
+            });
+        }
+        if (!data.parentPhone) {
+            ctx.addIssue({
+                path: ["parentPhone"],
+                code: z.ZodIssueCode.custom,
+                message: "Parent phone is required for students",
+            });
+        }
+        if (!data.parentEmail) {
+            ctx.addIssue({
+                path: ["parentEmail"],
+                code: z.ZodIssueCode.custom,
+                message: "Parent email is required for students",
+            });
+        }
+        if (!data.sclass) {
+            ctx.addIssue({
+                path: ["sclass"],
+                code: z.ZodIssueCode.custom,
+                message: "Class is required for students",
+            });
+        }
+        if (data.sclass === "Others") {
+            if (!data.sclassOther || data.sclassOther.trim() === "") {
+                ctx.addIssue({
+                    path: ["sclassOther"],
+                    code: z.ZodIssueCode.custom,
+                    message: "Please specify your class",
+                });
+            }
+        }
+    }
+
+    if (data.userType === "Teacher") {
+        if (!data.tName) {
+            ctx.addIssue({
+                path: ["tName"],
+                code: z.ZodIssueCode.custom,
+                message: "Name is required",
+            });
+        }
+        if (!data.qualification) {
+            ctx.addIssue({
+                path: ["qualification"],
+                code: z.ZodIssueCode.custom,
+                message: "Qualification is required for teachers",
+            });
+        }
+        if (data.qualification === "Others") {
+            if (!data.qualificationOther || data.qualificationOther.trim() === "") {
+                ctx.addIssue({
+                    path: ["qualificationOther"],
+                    code: z.ZodIssueCode.custom,
+                    message: "Please specify your class",
+                });
+            }
+        }
+    }
 });
+
 const Register: React.FC = () => {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors }
     } = useForm({
-        resolver: zodResolver(validationSchema),
+        resolver: zodResolver(baseSchema),
         mode: "onBlur",
     });
     const userTypeOptions = ["Student", "Teacher"];
-    const classOptions = ["10th Standard", "12th Standard", "Graduation","Others"];
-    const qualificationOptions = ["B.A.", "B.Com", "B.Sc","B.Tech","M.A.", "M.Com", "M.Sc","M.Tech","Others"];
-    const experienceOptions = ["No Prior Experience","1 - 5 years", "5 - 10 years", "More than 10 years"];
-    const adminRequestOptions = ["Yes","No"];
+    const classOptions = ["10th Standard", "12th Standard", "Graduation", "Others"];
+    const qualificationOptions = ["B.A.", "B.Com", "B.Sc", "B.Tech", "M.A.", "M.Com", "M.Sc", "M.Tech", "Others"];
+    const experienceOptions = ["No Prior Experience", "1 - 5 years", "5 - 10 years", "More than 10 years"];
+    const adminRequestOptions = ["Yes", "No"];
     const theme = useTheme();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -116,7 +192,7 @@ const Register: React.FC = () => {
     const [formData, setFormData] = useState<any>({
         userType: "",
         sName: "",
-        // tName: "",
+        tName: "",
         parentEmail: "",
         parentPhone: "",
         sclass: "",
@@ -134,15 +210,14 @@ const Register: React.FC = () => {
 
     const [imagePreview, setImagePreview] = useState<any>(null);
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false); // New state for photo upload status
-    const [isValid, setIsValid] = useState(false);
 
 
-   
+
     useEffect(() => {
         if (studentData) {
             navigate("/student-details");
         }
-        else if(teacherData){
+        else if (teacherData) {
             navigate("/teacher-details");
         }
 
@@ -203,19 +278,15 @@ const Register: React.FC = () => {
 
         try {
 
-            const selectedName =
-            formData.userType === "Student" ? "sName" : "tName";
-                
-
             const selectedClass =
                 formData.sclass === "Others" ? formData.sclassOther : formData.sclass;
 
             const selectedQualification =
                 formData.qualification === "Others" ? formData.qualificationOther : formData.qualification;
 
-            const user=formData.userType.toLowerCase();
+            const user = formData.userType.toLowerCase();
 
-             const apiUrl=`http://localhost:5000/api/${user}s/register`;
+            const apiUrl = `http://localhost:5000/api/${user}s/register`;
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -227,7 +298,6 @@ const Register: React.FC = () => {
                     ...formData,
                     isArchived: false,
                     // userType: "student",
-                    selectedName: formData.sName,
                     sclass: selectedClass,
                     qualification: selectedQualification,
 
@@ -236,10 +306,10 @@ const Register: React.FC = () => {
 
             if (!response.ok) throw new Error('Registration failed');
             const userData = await response.json();
-             if(user === "student"){
+            if (user === "student") {
                 dispatch(setStudent(userData)); // Dispatch user data to Redux store
             }
-            else if(user === "teacher"){
+            else if (user === "teacher") {
                 dispatch(setTeacher(userData)); // Dispatch user data to Redux store
 
             }
@@ -256,7 +326,7 @@ const Register: React.FC = () => {
 
             setFormData({
                 sName: "",
-                // tName: "",
+                tName: "",
                 parentEmail: "",
                 parentPhone: "",
                 sclass: "",
@@ -291,25 +361,25 @@ const Register: React.FC = () => {
         console.log("input element", e);
         const { name, value } = e.target;
 
-        if(name === "sclass" && value!=="Others"){
+        if (name === "sclass" && value !== "Others") {
             setFormData({ ...formData, sclass: value, sclassOther: "" });
         }
-        else{
-            setFormData({...formData,[name]: value});
+        else {
+            setFormData({ ...formData, [name]: value });
         }
     }
 
-        const handleChangeQualification = (e: any) => {
-            console.log("input element", e);
-            const { name, value } = e.target;
-    
-            if(name === "qualification" && value!=="Others"){
-                setFormData({ ...formData, qualification: value, qualificationOther: "" });
-            }
-            else{
-                setFormData({...formData,[name]: value});
-            }
+    const handleChangeQualification = (e: any) => {
+        console.log("input element", e);
+        const { name, value } = e.target;
+
+        if (name === "qualification" && value !== "Others") {
+            setFormData({ ...formData, qualification: value, qualificationOther: "" });
         }
+        else {
+            setFormData({ ...formData, [name]: value });
+        }
+    }
     return (
         <StyledBox>
             <Typography variant="h4" gutterBottom>
@@ -319,33 +389,56 @@ const Register: React.FC = () => {
                 <Box display="flex" flexDirection="column" gap={2}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">UserType</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
+                        <Controller
                             name="userType"
-                            value={formData.userType}
-                            label="UserType"
-                            required
-                            onChange={handleChangeSelect}
-                        >
-                            {userTypeOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>Required</FormHelperText>
+                            control={control}
+                            rules={{ required: "User Type is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    labelId="userType-label"
+                                    id="userType"
+                                    label="User Type"
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        handleChangeSelect(e); // if you have a custom state update
+                                    }}
+                                >
+                                    {userTypeOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                        <FormHelperText>{errors.userType?.message}</FormHelperText>
                     </FormControl>
-                    <TextField
-                        fullWidth
-                        {...register("sName")} error={!!errors.sName} helperText={errors.sName?.message}
-                        label="Name"
-                        name = "sName"
-                        variant="outlined"
-                        value={formData?.sName}
-                        onChange={handleChange}
-                        required
-                    />
+                    {formData.userType === "Student" ? (
+                        <TextField
+                            fullWidth
+                            {...register("sName")} error={!!errors.sName} helperText={errors.sName?.message}
+                            label="Name"
+                            name="sName"
+                            variant="outlined"
+                            value={formData?.sName}
+                            onChange={handleChange}
+                            required
+                        />
+                    ) : (
+                        <TextField
+                            fullWidth
+                            {...register("tName")} error={!!errors.tName} helperText={errors.tName?.message}
+                            label="Name"
+                            name="tName"
+                            variant="outlined"
+                            value={formData?.tName}
+                            onChange={handleChange}
+                            required
+                        />
+                    )
+                    }
+
                     <TextField
                         fullWidth
                         {...register("email")} error={!!errors.email} helperText={errors.email?.message}
@@ -416,131 +509,149 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
-                    {formData?.userType === "Student" ? 
-                    <>
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Class</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                name="sclass"
-                                value={formData.sclass}
-                                label="Class"
-                                onChange={handleChangeClass}
-                                required
-                            >
-                                {classOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            <br/>
-                            {formData?.sclass === "Others"? 
+                    {formData?.userType === "Student" ? (
+                        <>
+                            <FormControl fullWidth error={!!errors.sclass} required>
+                                <InputLabel id="class-select-label">Class</InputLabel>
+                                <Controller
+                                    name="sclass"
+                                    control={control}
+                                    defaultValue=""
+                                    rules={{ required: "Class is required" }}
+                                    render={({ field }) => (
+                                        <Select
+                                            {...field}
+                                            labelId="class-select-label"
+                                            label="Class"
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                handleChangeClass(e); // your custom side-effect handler
+                                            }}
+                                        >
+                                            {classOptions.map((option) => (
+                                                <MenuItem key={option} value={option}>
+                                                    {option}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    )}
+                                />
+                                <FormHelperText>{errors.sclass?.message}</FormHelperText>
+                            </FormControl>
+
+                            {formData?.sclass === "Others" && (
+                                <TextField
+                                    fullWidth
+                                    label="Specify Your Class"
+                                    {...register("sclassOther", { required: "Please specify your class" })}
+                                    value={formData.sclassOther}
+                                    onChange={handleChange}
+                                    error={!!errors.sclassOther}
+                                    helperText={errors.sclassOther?.message}
+                                />
+                            )}
                             <TextField
                                 fullWidth
-                                label="Specify Your Class"
-                                name="sclassOther"
-                                type="text"
+                                {...register("parentPhone")} error={!!errors.parentPhone} helperText={errors.parentPhone?.message}
+                                label="Parent's Phone Number"
+                                name="parentPhone"
+                                type="tel"
                                 variant="outlined"
-                                value={formData.sclassOther}
+                                value={formData.parentPhone}
                                 onChange={handleChange}
                                 required
-                            /> : null}
-                        </FormControl>
-                        <TextField
-                        fullWidth
-                        {...register("parentPhone")} error={!!errors.phone} helperText={errors.parentPhone?.message}
-                        label="Parent's Phone Number"
-                        name="parentPhone"
-                        type="tel"
-                        variant="outlined"
-                        value={formData.parentPhone}
-                        onChange={handleChange}
-                        required
-                        /> 
-                        <TextField
-                        fullWidth
-                        {...register("parentEmail")} error={!!errors.email} helperText={errors.parentEmail?.message}
-                        label="Parent's Email"
-                        name="parentEmail"
-                        type="email"
-                        variant="outlined"
-                        value={formData.parentEmail}
-                        onChange={handleChange}
-                        required
-                        /> 
-                    </> : formData?.userType === "Teacher" ?
-                    <>
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Qualification</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                name="qualification"
-                                value={formData.qualification}
-                                label="Qualification"
-                                onChange={handleChangeQualification}
-                                required
-                            >
-                                {qualificationOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            <br/>
-                            {formData?.qualification === "Others"? 
+                            />
                             <TextField
                                 fullWidth
-                                label="Mention Your Qualification"
-                                name="qualificationOther"
-                                type="text"
+                                {...register("parentEmail")} error={!!errors.parentEmail} helperText={errors.parentEmail?.message}
+                                label="Parent's Email"
+                                name="parentEmail"
+                                type="email"
                                 variant="outlined"
-                                value={formData.qualificationOther}
+                                value={formData.parentEmail}
                                 onChange={handleChange}
                                 required
-                            /> : null}
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Experience</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                name="experience"
-                                value={formData.experience}
-                                label="Experience"
-                                onChange={handleChangeSelect}
-                                required
-                            >
-                                {experienceOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Request Admin Access</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                name="isAdmin"
-                                value={formData.isAdmin}
-                                label="Admin Access"
-                                onChange={handleChangeSelect}
-                                required
-                            >
-                                {adminRequestOptions.map((option) => (
-                                    <MenuItem key={option} value={option}>
-                                        {option}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </>: null}
+                            />
+                        </>
+                    ) : formData?.userType === "Teacher" ? (
+                        <>
+                            <FormControl fullWidth error={!!errors.sclass} required>
+                                <InputLabel id="qualification-select-label">Qualification</InputLabel>
+                                <Controller
+                                    name="qualification"
+                                    control={control}
+                                    defaultValue=""
+                                    rules={{ required: "Qualification is required" }}
+                                    render={({ field }) => (
+                                        <Select
+                                            {...field}
+                                            labelId="qualification-select-label"
+                                            label="Qualification"
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                handleChangeQualification(e); // your custom side-effect handler
+                                            }}
+                                        >
+                                            {qualificationOptions.map((option) => (
+                                                <MenuItem key={option} value={option}>
+                                                    {option}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    )}
+                                />
+                                <FormHelperText>{errors.qualification?.message}</FormHelperText>
+                            </FormControl>
 
-
+                            {formData?.qualification === "Others" && (
+                                <TextField
+                                    fullWidth
+                                    label="Mention Your Qualification"
+                                    {...register("qualificationOther", { required: "Please mention your qualification" })}
+                                    value={formData.qualificationOther}
+                                    onChange={handleChange}
+                                    error={!!errors.qualificationOther}
+                                    helperText={errors.qualificationOther?.message}
+                                />
+                            )}
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Experience</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    name="experience"
+                                    value={formData.experience}
+                                    label="Experience"
+                                    onChange={handleChangeSelect}
+                                    required
+                                >
+                                    {experienceOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Request Admin Access</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    name="isAdmin"
+                                    value={formData.isAdmin}
+                                    label="Admin Access"
+                                    onChange={handleChangeSelect}
+                                    required
+                                >
+                                    {adminRequestOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </>
+                    ) : null}
 
                     <Box sx={{ marginY: "20px" }}>
                         <input

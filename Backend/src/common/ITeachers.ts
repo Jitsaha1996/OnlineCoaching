@@ -6,4 +6,14 @@ export interface ITeachers extends Document, IGenerics {
     isAdmin?: boolean;
     qualification: string;
     experience: string;
+    notes: [
+        {
+            notesID: string;
+            notesName: string;
+            subject: string;
+            class : string;
+            notesDescription: string;
+            createdAt: Date;
+        }
+    ];
 }

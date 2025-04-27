@@ -61,40 +61,42 @@ export const registerStudents = asyncHandler(async (req: Request, res: Response)
 });
 
 // Edit user details
-// export const editStudents = asyncHandler(async (req: Request, res: Response) => {
-//   const { sName, pic, dob, phone, email, isArchived } = req.body;
+export const editStudents = asyncHandler(async (req: Request, res: Response) => {
+  const { sName, pic, dob, phone, email, isArchived,gender,sclass } = req.body;
 
-//   const studentExist = await Student.findOne({ email });
-//   if (!studentExist) {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
+  const studentExist = await Student.findOne({ phone, email });
+  if (!studentExist) {
+    res.status(404);
+    throw new Error("User not found");
+  }
 
-//   const filter = { email: email };
-//   const updateDocument = {
-//     $set: {
-//       sName,
-//       pic,
-//       dob,
-//       phone,
-//       isArchived,
-//     },
-//   };
+  const filter = { phone: phone , email: email };
+  const updateDocument = {
+    $set: {
+      sName, 
+      pic,
+      dob,
+      isArchived,
+      gender,
+      sclass,
+    },
+  };
 
-//   const student = await Student.updateOne(filter, updateDocument);
+  const student = await Student.updateOne(filter, updateDocument);
 
-//   if (student.modifiedCount > 0) {
-//     res.status(200).json({
-//       message: `${email} updated successfully!`,
-//       status: "success",
-//       email,
-//       statusCode: 200,
-//     });
-//   } else {
-//     res.status(400);
-//     throw new Error("Error Occurred");
-//   }
-// });
+  if (student.modifiedCount > 0) {
+    res.status(200).json({
+      message: `${sName} updated successfully!`,
+      status: "success",
+      phone,
+      email,
+      statusCode: 200,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Error Occurred");
+  }
+});
 
 // // Forget password
 export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
@@ -145,7 +147,7 @@ export const authStudents = asyncHandler(async (req: Request, res: Response) => 
 export const getStudentsList = asyncHandler(async (req: any, res: any) => {
   try {
     const studentList = await Student.find().select(
-      "sName phone email isAdmin isArchived"
+      "sName phone email isAdmin isArchived pic dob userType parentEmail parentPhone sclass paymentDetails examDetails teacherDetails notes"
     );
 
     if (!studentList.length) {
@@ -155,43 +157,5 @@ export const getStudentsList = asyncHandler(async (req: any, res: any) => {
     res.status(200).json(studentList);
   } catch (error:any) {
     res.status(500).json({ message: "Server error", error: error.message });
-  }
+   }
 });
-// // Get all users
-// export const getStudentsList = asyncHandler(async (req: any, res: any) => {
-//   try {
-//     const studentList = await Student.find().select(
-//       "sName phone email isAdmin isArchived"
-//     );
-
-//     if (!studentList.length) {
-//       return res.status(204).json({ message: "No users found" });
-//     }
-
-//     res.status(200).json(studentList);
-//   } catch (error:any) {
-//     res.status(500).json({ message: "Server error", error: error.message });
-//   }
-// });
-
-// // Get user by email
-// export const getStudentsByEmail = asyncHandler(async (req: Request, res: Response) => {
-//   const { email } = req.params;
-
-//   const student = await Student.findOne({ email });
-//   if (!student) {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
-
-//   res.json({
-//     _id: student._id,
-//     rName: student.sName,
-//     email: student.email,
-//     // isAdmin: student.isAdmin,
-//     isArchived: student.isArchived,
-//     pic: student.pic,
-//     dob: student.dob,
-//     phone: student.phone,
-//   });
-// });

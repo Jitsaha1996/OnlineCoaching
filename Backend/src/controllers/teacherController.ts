@@ -105,7 +105,7 @@ export const forgetPasswords = asyncHandler(async (req: Request, res: Response) 
 export const getTeachersList = asyncHandler(async (req: any, res: any) => {
   try {
     const teacherList = await Teacher.find().select(
-      "sName phone email isAdmin isArchived"
+      "tName phone email isAdmin isArchived"
     );
 
     if (!teacherList.length) {
@@ -115,5 +115,47 @@ export const getTeachersList = asyncHandler(async (req: any, res: any) => {
     res.status(200).json(teacherList);
   } catch (error:any) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
+export const editTeachers = asyncHandler(async (req: Request, res: Response) => {
+  const { tName, pic, dob, phone, email, isArchived,gender,isAdmin,qualification,experience,isModified  } = req.body;
+
+  const teacherExist = await Teacher.findOne({ phone, email });
+  if (!teacherExist) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const filter = { phone: phone , email: email };
+  const updateDocument = {
+    $set: {
+      tName, 
+      pic,
+      dob,
+      isArchived,
+      gender,
+      isAdmin,
+      qualification,
+      experience,
+      isModified,
+          
+    },
+  };
+
+  const student = await Teacher.updateOne(filter, updateDocument);
+
+  if (student.modifiedCount > 0) {
+    res.status(200).json({
+      message: `${tName} updated successfully!`,
+      status: "success",
+      phone,
+      email,
+      statusCode: 200,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Error Occurred");
   }
 });

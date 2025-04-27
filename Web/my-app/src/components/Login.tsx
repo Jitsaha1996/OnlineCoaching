@@ -40,10 +40,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 
 const Login: React.FC = () => {
-    // const [email, setEmail] = useState('');
-    // const [password, setPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    
     const [userType, setuserType] = useState('');
     const userTypeOptions = ["Student", "Teacher"];
     const [error, setError] = useState('');
@@ -143,7 +140,7 @@ const Login: React.FC = () => {
         setError('');
         setLoading(true);
 
-        if (newPassword !== confirmPassword) {
+        if (formData.newPassword !== formData.confirmPassword) {
             setError("Passwords do not match");
             setLoading(false);
             return;
@@ -161,7 +158,7 @@ const Login: React.FC = () => {
                 setLoading(false);
                 return;
             }
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -169,7 +166,7 @@ const Login: React.FC = () => {
                 },
                 body: JSON.stringify({ userType: formData.userType, phone: formData.phone, newPassword: newPassword }),
             });
-            
+
 
             if (!response.ok) {
                 setToasterMessage("Error updating password");
@@ -187,7 +184,7 @@ const Login: React.FC = () => {
                 setLoading(false);
                 navigate('/login'); // Redirect to login page
             }, 1500);
-            
+
 
         } catch (err: any) {
             setError(err.message);
@@ -307,7 +304,7 @@ const Login: React.FC = () => {
                                     name='phone'
                                     fullWidth
                                     margin="normal"
-                            
+
                                     variant="outlined"
                                     value={formData.phone}
                                     onChange={handleChange}
