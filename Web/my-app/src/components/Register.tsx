@@ -169,12 +169,15 @@ const Register: React.FC = () => {
     const {
         register,
         handleSubmit,
+        watch,
         control,
         formState: { errors }
     } = useForm({
         resolver: zodResolver(baseSchema),
         mode: "onBlur",
     });
+    const watchedFields = watch();
+    console.log("watched fields", watchedFields);
     const userTypeOptions = ["Student", "Teacher"];
     const classOptions = ["10th Standard", "12th Standard", "Graduation", "Others"];
     const qualificationOptions = ["B.A.", "B.Com", "B.Sc", "B.Tech", "M.A.", "M.Com", "M.Sc", "M.Tech", "Others"];
@@ -354,7 +357,25 @@ const Register: React.FC = () => {
     const handleChangeSelect = (e: any) => {
         console.log("input element", e);
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({
+            sName: "",
+            tName: "",
+            parentEmail: "",
+            parentPhone: "",
+            sclass: "",
+            sclassOther: "",
+            confirmPassword: "",
+            password: "",
+            gender: "",
+            pic: "",
+            email: "",
+            dob: "",
+            qualification: "",
+            qualificationOther: "",
+            experience: "", [name]: value
+        });
+
+        // setFormData({ ...formData, [name]: value });
     }
 
     const handleChangeClass = (e: any) => {
@@ -425,18 +446,20 @@ const Register: React.FC = () => {
                             onChange={handleChange}
                             required
                         />
-                    ) : (
-                        <TextField
-                            fullWidth
-                            {...register("tName")} error={!!errors.tName} helperText={errors.tName?.message}
-                            label="Name"
-                            name="tName"
-                            variant="outlined"
-                            value={formData?.tName}
-                            onChange={handleChange}
-                            required
-                        />
-                    )
+                    ) :
+                        formData.userType === "Teacher" ? (
+                            <TextField
+                                fullWidth
+                                {...register("tName")} error={!!errors.tName} helperText={errors.tName?.message}
+                                label="Name"
+                                name="tName"
+                                variant="outlined"
+                                value={formData?.tName}
+                                onChange={handleChange}
+                                required
+                            />
+                        ) : null
+
                     }
 
                     <TextField
