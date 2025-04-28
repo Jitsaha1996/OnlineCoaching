@@ -75,15 +75,15 @@ import { protect } from '../middleweres/authMiddlewere';
  *       400:
  *         description: Bad request, invalid input
  * 
- * /api/class/getone:
+ * /api/class/getone/{className}:
  *   get:
  *     summary: Get a single class
  *     description: Retrieve details of a specific class using its name.
  *     tags:
  *       - Class
  *     parameters:
- *       - in: query
- *         name: name
+ *       - in: path
+ *         name: className
  *         required: true
  *         schema:
  *           type: string
@@ -99,10 +99,10 @@ import { protect } from '../middleweres/authMiddlewere';
  *                 _id:
  *                   type: string
  *                   example: "60b7c3f3b509b734d4ef1a88"
- *                 name:
+ *                 className:
  *                   type: string
  *                   example: "BTech"
- *                 description:
+ *                 classDescription:
  *                   type: string
  *                   example: "8"
  *       400:
@@ -120,10 +120,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *         application/json:
  *           schema:
  *             type: object
- *             properties:
- *               classId:
- *                 type: string
- *                 example: "60b7c3f3b509b734d4ef1a88"
+ *             properties:            
  *               className:
  *                 type: string
  *                 example: "12"
@@ -150,19 +147,19 @@ import { protect } from '../middleweres/authMiddlewere';
  *       400:
  *         description: Bad request, invalid input
  * 
- * /api/class/delete:
+ * /api/class/delete/{className}:
  *   delete:
  *     summary: Delete class
  *     description: Admin can delete a class.
  *     tags:
  *       - Class
  *     parameters:
- *       - in: query
- *         name: classId
+ *       - in: path
+ *         name: className
  *         required: true
  *         schema:
  *           type: string
- *         example: "60b7c3f3b509b734d4ef1a88"
+ *         example: "10"
  *     responses:
  *       200:
  *         description: Class successfully deleted
@@ -172,8 +169,8 @@ import { protect } from '../middleweres/authMiddlewere';
 router.route('/add').post(protect,addClass);
 router.route('/').get(protect,getAllClass);
 router.route('/edit').put(protect,editClass);    
-router.route('/getone').get(protect,getClass);      
-router.route('/delete').delete(protect,deleteClass);
+router.route('/getone/:className').get(protect,getClass);      
+router.route('/delete/:className').delete(protect,deleteClass);
 
 
 export default router;

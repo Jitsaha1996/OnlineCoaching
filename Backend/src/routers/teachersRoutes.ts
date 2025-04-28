@@ -5,11 +5,12 @@ const router = express.Router();
 import { 
   registerTeachers, 
   authTeachers, 
+  getActiveTeachers,
   getTeachersList, 
   editTeachers, 
-  // getTeachersByEmail 
   forgetPasswords
 } from "../controllers/teacherController";
+import { protect } from "../middleweres/authMiddlewere";
 /**
  * @swagger
  * /api/teachers/register:
@@ -289,7 +290,6 @@ import {
  *               isAdmin:
  *                 type: boolean
  *                 example: false
- * 
  *     responses:
  *       200:
  *         description: Teacher details updated successfully
@@ -311,16 +311,50 @@ import {
  *         description: Bad request, invalid input
  *       404:
  *         description: Teacher not found
+ * 
+ * /api/teachers/getActiveTeachers:
+ *   get:
+ *     summary: Get active teachers
+ *     description: Returns a list of teachers with isArchived set to false.
+ *     tags:
+ *       - Teachers
+ *     responses:
+ *       200:
+ *         description: List of active teachers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "60b7c3f3b509b734d4ef1a88"
+ *                   tName:
+ *                     type: string
+ *                     example: "John Doe"
+ *                   email:
+ *                     type: string
+ *                     example: "john.doe@example.com"
+ *                   phone:
+ *                     type: string
+ *                     example: "1234567890"
+ *                  
+ *       400:
+ *         description: Bad request, invalid input
+ *       404:
+ *         description: No active teachers found
  */
  
 // Define routes
-router.route('/register').post(registerTeachers);
-router.route('/').get(getTeachersList);
-router.route('/edit').put(editTeachers);
-router.route('/login').post(authTeachers);
+router.route('/register').post(protect,registerTeachers);
+router.route('/').get(protect,getTeachersList);
+router.route('/edit').put(protect,editTeachers);
+router.route('/login').post(protect,authTeachers);
 // // router.route('/paymentinfo').put(paymentInfoForFamilyWidse);
-router.route('/forgetPassword').put(forgetPasswords);
-// router.get('/email/:email', getTeachersByEmail);
+router.route('/forgetPassword').put(protect,forgetPasswords);
+router.route('/getActiveTeachers').get(protect,getActiveTeachers);
 
 // Export router
 export default router;
