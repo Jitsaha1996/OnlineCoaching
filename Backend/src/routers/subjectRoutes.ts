@@ -76,19 +76,19 @@ import { protect } from '../middleweres/authMiddlewere';
  *       400:
  *         description: Bad request, invalid input
  * 
- * /api/Subject/getone/:name:
+ * /api/Subject/getone/{subjectName}:
  *   get:
  *     summary: Get a single Subject
- *     description: Retrieve details of a specific Subject using its name.
+ *     description: Retrieve details of a specific Subject using its name (from URL path parameter).
  *     tags:
  *       - Subject
  *     parameters:
- *       - in: query
- *         name: name
+ *       - in: path
+ *         name: subjectName
  *         required: true
  *         schema:
  *           type: string
- *         example: "9"
+ *         example: "beng"
  *     responses:
  *       200:
  *         description: Subject details
@@ -100,14 +100,18 @@ import { protect } from '../middleweres/authMiddlewere';
  *                 _id:
  *                   type: string
  *                   example: "60b7c3f3b509b734d4ef1a88"
- *                 name:
+ *                 subjectName:
  *                   type: string
  *                   example: "BTech"
  *                 description:
  *                   type: string
- *                   example: "8"
+ *                   example: "Engineering"
  *       400:
  *         description: Bad request, invalid input
+ *       404:
+ *         description: Subject not found
+ *       500:
+ *         description: Internal server error
  * 
  * /api/Subject/edit:
  *   put:
@@ -122,13 +126,10 @@ import { protect } from '../middleweres/authMiddlewere';
  *           schema:
  *             type: object
  *             properties:
- *               SubjectId:
- *                 type: string
- *                 example: "60b7c3f3b509b734d4ef1a88"
- *               SubjectName:
+ *               subjectName:
  *                 type: string
  *                 example: "12"
- *               SubjectDescription:
+ *               subjectDescription:
  *                 type: string
  *                 example: "12"
  *     responses:
@@ -151,19 +152,19 @@ import { protect } from '../middleweres/authMiddlewere';
  *       400:
  *         description: Bad request, invalid input
  * 
- * /api/Subject/delete:
+ * /api/Subject/delete/{subjectName}:
  *   delete:
  *     summary: Delete Subject
  *     description: Admin can delete a Subject.
  *     tags:
  *       - Subject
  *     parameters:
- *       - in: query
- *         name: SubjectId
+ *       - in: path
+ *         name: subjectName
  *         required: true
  *         schema:
  *           type: string
- *         example: "60b7c3f3b509b734d4ef1a88"
+ *         example: "cs"
  *     responses:
  *       200:
  *         description: Subject successfully deleted
@@ -174,7 +175,7 @@ import { protect } from '../middleweres/authMiddlewere';
 router.route('/add').post(protect, addSubject);
 router.route('/').get(protect, getAllSubject);
 router.route('/edit').put(protect, editSubject);    
-router.route('/getone/:name').get(protect, getSubject);      
-router.route('/delete').delete(protect, deleteSubject);
+router.route('/getone/:subjectName').get(protect, getSubject);      
+router.route('/delete/:subjectName').delete(protect, deleteSubject);
 
 export default router;

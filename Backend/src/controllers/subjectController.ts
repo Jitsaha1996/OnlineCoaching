@@ -24,8 +24,11 @@ export const getAllSubject = async (_req: any, res: any) => {
 // Get a single subject by name
 export const getSubject = async (req: any, res: any) => {
     try {
-        const { name } = req.params;
-        const subjectInstance = await Subject.findOne({ name });
+        console.log(req.params);
+
+        const { subjectName } = req.params;
+        const subjectInstance = await Subject.findOne({ subjectName });
+        console.log(subjectInstance);
         if (!subjectInstance) {
              res.status(404).json({ message: "subject not found" });
              return;
@@ -33,7 +36,7 @@ export const getSubject = async (req: any, res: any) => {
         res.status(201).json({
             
             _id: subjectInstance._id,
-            name: subjectInstance.subjectName,
+            subjectName: subjectInstance.subjectName,
             description: subjectInstance.subjectDescription,
             
         });
@@ -42,24 +45,43 @@ export const getSubject = async (req: any, res: any) => {
     }
 };
 // Edit a subject by ID
-export const editSubject = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const updatedSubject = await Subject.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-        if (!updatedSubject) {
-            res.status(404).json({ message: "Subject not found" });
-            return;
-        }
-        res.status(404).json(updatedSubject);
-    } catch (error) {
-        res.status(400).json({ message: 'Error updating subject', error });
+export const editSubject = async (req: any, res: any) => {
+    const {subjectName,subjectDescription  } = req.body;
+    const subjectExist = await Subject.findOne({ subjectName });
+
+    if (!subjectExist) {
+        return res.status(404).json({
+            message: `subject ${subjectName} not found`,
+            status: "error",
+            statusCode: 404,
+        });
+    }
+    const filter = { subjectName: subjectExist.subjectName };
+    const updateDocument = {
+        $set: {
+            subjectDescription: subjectDescription,
+        },
+    }; 
+    const subjectsUpdated = await Subject.updateOne(filter, updateDocument);
+    if (subjectsUpdated.modifiedCount > 0) {
+        return res.status(200).json({
+            message: `subject ${subjectName} updated successfully!`,
+            status: "success",
+            statusCode: 200,
+        });
+    } else {
+        return res.status(400).json({
+            message: "Error occurred while updating subject",
+            status: "error",
+            statusCode: 400,
+        });
     }
 };
 // Delete a Subject by ID
 export const deleteSubject = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const deletedSubject = await Subject.findByIdAndDelete(id);
+        const { subjectName } = req.params;
+        const deletedSubject = await Subject.findOneAndDelete({subjectName});
         if (!deletedSubject) {
             res.status(404).json({ message: "Subject not found" });
             return;

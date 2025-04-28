@@ -22,19 +22,20 @@ export const getAllClass = async (_req: Request, res: Response) => {
     }
 };
 // Get a single class by name
-export const getClass = async (req: Request, res: Response) => {
+export const getClass = async (req: any, res: any) => {
     try {
-        const { name } = req.body;
-        const classInstance = await Class.findOne({ name });
+        console.log(req.params);
+        const  {className}  = req.params;
+        const classInstance = await Class.findOne({ className });
         if (!classInstance) {
              res.status(404).json({ message: "Class not found" });
              return;
         }
-        res.json({
+        res.status(201).json({
             
             _id: classInstance._id,
-            name: classInstance.className,
-            description: classInstance.classDescription,
+            className: classInstance.className,
+            classDescription: classInstance.classDescription,
             
         });
     } catch (error) {
@@ -42,24 +43,43 @@ export const getClass = async (req: Request, res: Response) => {
     }
 };
 // Edit a class by ID
-export const editClass = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const updatedClass = await Class.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-        if (!updatedClass) {
-            res.status(404).json({ message: "Class not found" });
-            return;
-        }
-        res.status(404).json(updatedClass);
-    } catch (error) {
-        res.status(400).json({ message: 'Error updating class', error });
+export const editClass = async (req: any, res: any) => {
+    const { className, classDescription } = req.body;
+    const classExist = await Class.findOne({ className });
+
+    if (!classExist) {
+        return res.status(404).json({
+            message: `Class ${className} not found`,
+            status: "error",
+            statusCode: 404,
+        });
+    }
+    const filter = { className: classExist.className };
+    const updateDocument = {
+        $set: {
+            classDescription: classDescription,
+        },
+    }; 
+    const classUpdated = await Class.updateOne(filter, updateDocument);
+    if (classUpdated.modifiedCount > 0) {
+        return res.status(200).json({
+            message: `Class ${className} updated successfully!`,
+            status: "success",
+            statusCode: 200,
+        });
+    } else {
+        return res.status(400).json({
+            message: "Error occurred while updating class",
+            status: "error",
+            statusCode: 400,
+        });
     }
 };
 // Delete a class by ID
 export const deleteClass = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const deletedClass = await Class.findByIdAndDelete(id);
+        const { className } = req.params;
+        const deletedClass = await Class.findOneAndDelete({className});
         if (!deletedClass) {
             res.status(404).json({ message: "Class not found" });
             return;

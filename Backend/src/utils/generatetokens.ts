@@ -25,7 +25,7 @@ if (tokenType === "student") {
       sub: student._id,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "30m" } // Token expiration set to 30 minutes
+    { expiresIn: "120m" } // Token expiration set to 120 minutes
   );
 }
 }

@@ -1,5 +1,5 @@
 export interface IClass {
-    id: string;
+    _id: string;
     className: string;
     classDescription?: string;
     createdAt: Date;
