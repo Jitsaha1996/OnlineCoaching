@@ -22,11 +22,13 @@ app.use(bodyParser.json({
 }));
 
 const dotenv=require('dotenv');
-import connectDb from './config/db'
+import connectDb from './config/db';
 import userRoutes from './routers/userRoutes'
 import studentsRoutes from "./routers/studentsRoutes";
 import teachersRoutes from "./routers/teachersRoutes";
 import qualificationRoutes from "./routers/qualificationRoutes"; 
+import classRoutes from "./routers/classRoutes";
+import subjectRoutes from "./routers/subjectRoutes";
 // const workoutRoutes = require('./routes/workoutRoutes');
 // const busSeatRoutes = require('./routes/busSeatRoutes');
 // const announcementRoutes = require('./routes/announcementRoutes');
@@ -74,6 +76,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/students/', studentsRoutes);
 app.use('/api/teachers/', teachersRoutes);
 app.use('/api/qualification/', qualificationRoutes);
+app.use('/api/class/', classRoutes);
+app.use('/api/Subject',subjectRoutes);
 
 
 // app.use('/api/workouts', workoutRoutes);

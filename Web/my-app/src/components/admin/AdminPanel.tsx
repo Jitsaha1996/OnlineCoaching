@@ -9,10 +9,10 @@ import {
     styled,
 } from '@mui/material';
 import { TeacherDetailsAdmin } from './TeacherDetailsAdmin';
-import { StudentDetailsAdmin } from './StudentDetailsAdmin';
 import { Payment } from './Payment';
 import { Qualifications } from './Qualifications';
 import { AdminDetails } from './AdminDetails';
+import StudentDetailsAdmin from './StudentDetailsAdmin';
 // import AdminRegistration from './AdminRegistration'; // Import the new component
 // import SeatConfirmation from './SeatConfirmation';
 // import SeatDetails from './SeatDetails';

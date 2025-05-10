@@ -20,6 +20,8 @@ export interface IStudents extends IGenerics, Document {
     teacherDetails: [
         {   teacherName: string;
             teacherId: string;
+            teacherEmail: string;
+            teacherPhone: string;
             subject: string;
         }
     ];
@@ -27,7 +29,7 @@ export interface IStudents extends IGenerics, Document {
         {   notesID: string;
             noteName: string;
             noteDescription: string;
-            createdAt: Date;
+            noteDate: Date;
         }
    
     ];
