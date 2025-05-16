@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { jwtTokenStudent } from "../utils/generatetokens"; // Ensure this utility is written in TypeScript
 import Student from "../models/studentsModel"; // Adjust import path as needed
+import Class from "../models/classModel";
+import Subject from "../models/subjectModel"; // Adjust import path as needed
+import TeacherTS from "../models/teachersModel";
+import { getActiveTeachers } from "./teacherController";
+import { get } from "mongoose";
 
 // Register a new user
 export const registerStudents = asyncHandler(async (req: Request, res: Response) => {
@@ -59,7 +64,6 @@ export const registerStudents = asyncHandler(async (req: Request, res: Response)
     throw new Error("Error Occurred");
   }
 });
-
 // Edit user details
 export const editStudents = asyncHandler(async (req: Request, res: Response) => {
   const { sName, pic, dob, phone, email, isArchived,gender,sclass } = req.body;
@@ -97,7 +101,6 @@ export const editStudents = asyncHandler(async (req: Request, res: Response) => 
     throw new Error("Error Occurred");
   }
 });
-
 // // Forget password
 export const forgetPasswords = asyncHandler(async (req: Request, res: Response) => {
   const { phone, newPassword } = req.body;
@@ -117,7 +120,6 @@ export const forgetPasswords = asyncHandler(async (req: Request, res: Response) 
     statusCode: 200,
   });
 });
-
 // // Authenticate user
 export const authStudents = asyncHandler(async (req: Request, res: Response) => {
   const { userType,phone, password } = req.body;
@@ -158,4 +160,31 @@ export const getStudentsList = asyncHandler(async (req: any, res: any) => {
   } catch (error:any) {
     res.status(500).json({ message: "Server error", error: error.message });
    }
+});
+
+export const editTeachers = asyncHandler(async (req: Request, res: Response) => {
+    const { className, subjectName, teacherName, teacherId, teacherEmail, teacherPhone } = req.body;
+    
+    const teacherExist = await getActiveTeachers(teacherName, teacherId, teacherEmail);
+ 
+    const classExist = await Class.findOne({ className });
+    if (!classExist) {
+      res.status(404);
+      throw new Error("Class not found");
+    }
+    const subjectExist = await Subject.findOne({ subjectName });
+    if (!subjectExist) {
+      res.status(404);
+      throw new Error("Subject not found");
+    }
+    const studentExist = await Student.find({
+      sclass: classExist.className,
+      "subjects.subjectName": subjectExist.subjectName
+    });
+    if (!studentExist) {
+      res.status(404);
+      throw new Error("Student not found");
+    }
+  
+
 });
