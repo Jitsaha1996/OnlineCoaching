@@ -1,15 +1,29 @@
 import { Request, Response } from 'express';
 import Class from '../models/classModel';  
+import { IClass } from '../common/IClass';
 
 // Add a new class
-export const addClass = async (req: Request, res: Response) => {
+export const addClass = async (req: any, res: any) => {
     try {
-        const classInstance = new Class(req.body);
+        const classAddedFromUser :IClass= req.body;
+        const className= classAddedFromUser.className;
+        console.log("className",className);
+
+        const classExist = await Class.findOne({className});
+        if (classExist) {
+            return res.status(400).json({
+                message: `Class ${className} already exists`,
+                status: "error",
+                statusCode: 400,
+            });
+        }
+        const classInstance = new Class(classAddedFromUser);
         const savedClass = await classInstance.save();
-        res.status(201).json(addClass);
+        res.status(201).json(savedClass);
     } catch (error) {
         res.status(500).json({ message: 'Error adding class', error });
     }
+
 };
 
 // Get all class
@@ -36,6 +50,9 @@ export const getClass = async (req: any, res: any) => {
             _id: classInstance._id,
             className: classInstance.className,
             classDescription: classInstance.classDescription,
+            boards: classInstance.boards,
+            
+
             
         });
     } catch (error) {
@@ -89,3 +106,6 @@ export const deleteClass = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error in deleting class', error });
     }
 };
+
+
+ 

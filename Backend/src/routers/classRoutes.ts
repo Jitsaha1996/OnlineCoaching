@@ -6,14 +6,15 @@ import {
     editClass,
     getClass,
     deleteClass,
+
 } from '../controllers/classController';
 import { protect } from '../middleweres/authMiddlewere';
 /**
  * @swagger
  * /api/class/add:
  *   post:
- *     summary: Add class
- *     description: Admin can add class.
+ *     summary: Add a new class
+ *     description: Admin can add a new class with one or more boards and subjects.
  *     tags:
  *       - Class
  *     requestBody:
@@ -22,16 +23,49 @@ import { protect } from '../middleweres/authMiddlewere';
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - className
+ *               - boards
  *             properties:
  *               className:
  *                 type: string
- *                 example: "10"
+ *                 example: "BTech"
  *               classDescription:
  *                 type: string
- *                 example: "10th grade"
+ *                 example: "Engineering Undergraduate Program"
+ *               boards:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - boardName
+ *                     - subjects
+ *                   properties:
+ *                     boardName:
+ *                       type: string
+ *                       example: "AICTE"
+ *                     boardDescription:
+ *                       type: string
+ *                       example: "All India Council for Technical Education"
+ *                     subjects:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         required:
+ *                           - subjectName
+ *                         properties:
+ *                           subjectName:
+ *                             type: string
+ *                             example: "Data Structures"
+ *                           subjectDescription:
+ *                             type: string
+ *                             example: "Study of data organization"
+ *                           subjectCode:
+ *                             type: string
+ *                             example: "CS201"
  *     responses:
  *       201:
- *         description: Class added successfully
+ *         description: Class created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -45,36 +79,96 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "BTech"
  *                 classDescription:
  *                   type: string
- *                   example: "10"
+ *                   example: "Engineering Undergraduate Program"
+ *                 boards:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "60b7c3f3b509b734d4ef1a89"
+ *                       boardName:
+ *                         type: string
+ *                         example: "AICTE"
+ *                       boardDescription:
+ *                         type: string
+ *                         example: "All India Council for Technical Education"
+ *                       subjects:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             _id:
+ *                               type: string
+ *                               example: "60b7c3f3b509b734d4ef1a90"
+ *                             subjectName:
+ *                               type: string
+ *                               example: "Data Structures"
+ *                             subjectDescription:
+ *                               type: string
+ *                               example: "Study of data organization"
+ *                             subjectCode:
+ *                               type: string
+ *                               example: "CS201"
  *       400:
- *         description: Bad request, invalid input
+ *         description: Bad request, class already exists or invalid input
+ *       500:
+ *         description: Internal server error
  *
- * /api/class/getall:
+ * /api/class/:
  *   get:
- *     summary: Get all class
- *     description: Retrieve a list of all classes.
+ *     summary: Get all classes
+ *     description: Retrieve a list of all classes with their boards and subjects.
  *     tags:
  *       - Class
  *     responses:
- *       201:
- *         description: A list of classes
+ *       200:
+ *         description: A list of all classes
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                   example: "60b7c3f3b509b734d4ef1a88"
- *                 className:
- *                   type: string
- *                   example: "BTech"
- *                 classDescription:
- *                   type: string
- *                   example: "12"
- *       400:
- *         description: Bad request, invalid input
- * 
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "60b7c3f3b509b734d4ef1a88"
+ *                   className:
+ *                     type: string
+ *                     example: "BTech"
+ *                   classDescription:
+ *                     type: string
+ *                     example: "Engineering Undergraduate Program"
+ *                   boards:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         boardName:
+ *                           type: string
+ *                           example: "AICTE"
+ *                         boardDescription:
+ *                           type: string
+ *                           example: "All India Council for Technical Education"
+ *                         subjects:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               subjectName:
+ *                                 type: string
+ *                                 example: "Data Structures"
+ *                               subjectDescription:
+ *                                 type: string
+ *                                 example: "Study of data organization"
+ *                               subjectCode:
+ *                                 type: string
+ *                                 example: "CS201"
+ *       500:
+ *         description: Internal server error
+ *
  * /api/class/getone/{className}:
  *   get:
  *     summary: Get a single class
@@ -107,7 +201,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "8"
  *       400:
  *         description: Bad request, invalid input
- * 
+ *
  * /api/class/edit:
  *   put:
  *     summary: Edit class
@@ -120,7 +214,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *         application/json:
  *           schema:
  *             type: object
- *             properties:            
+ *             properties:
  *               className:
  *                 type: string
  *                 example: "12"
@@ -146,7 +240,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "12"
  *       400:
  *         description: Bad request, invalid input
- * 
+ *
  * /api/class/delete/{className}:
  *   delete:
  *     summary: Delete class
@@ -171,6 +265,5 @@ router.route('/').get(protect,getAllClass);
 router.route('/edit').put(protect,editClass);    
 router.route('/getone/:className').get(protect,getClass);      
 router.route('/delete/:className').delete(protect,deleteClass);
-
 
 export default router;
