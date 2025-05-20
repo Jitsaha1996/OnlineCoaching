@@ -14,6 +14,7 @@ import BoardDetails from './BoardDetails';
 import SubjectDetails from './SubjectDetails';
 
 
+
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
     position: 'relative',
     transition: 'background-color 0.3s',
