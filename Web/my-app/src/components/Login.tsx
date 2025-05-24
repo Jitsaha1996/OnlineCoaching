@@ -40,7 +40,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 
 const Login: React.FC = () => {
-    
+
     const [userType, setuserType] = useState('');
     const userTypeOptions = ["Student", "Teacher"];
     const [error, setError] = useState('');
@@ -55,11 +55,11 @@ const Login: React.FC = () => {
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
     const [formData, setFormData] = useState<any>({
         password: "",
-      //  email: "",
+        //  email: "",
         phone: "",
         userType: "",
-        // newPassword: "",
-        // confirmPassword: ""
+        newPassword: "",
+        confirmPassword: ""
     });
 
     useEffect(() => {
@@ -76,20 +76,20 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-    
+
         const url =
             formData?.userType === "Student"
                 ? "http://localhost:5000/api/students/login"
                 : formData?.userType === "Teacher"
-                ? "http://localhost:5000/api/teachers/login"
-                : "";
-    
+                    ? "http://localhost:5000/api/teachers/login"
+                    : "";
+
         if (!url) {
             setError("Invalid user type");
             setLoading(false);
             return;
         }
-    
+
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -102,38 +102,38 @@ const Login: React.FC = () => {
                     password: formData.password,
                 }),
             });
-    
+
             const data = await response.json();
-    
+
             if (!response.ok || data?.success === false) {
                 setToasterMessage(data?.message || "Invalid phone or password");
                 setToasterSeverity('error');
                 setToasterOpen(true);
                 throw new Error(data?.message || "Login failed");
             }
-    
+
             dispatch(setStudent(data));
             setToasterMessage("Login successful!");
             setToasterSeverity('success');
             setToasterOpen(true);
-    
+
             if (formData?.userType === "Student") {
                 navigate("/student-details");
             } else if (formData?.userType === "Teacher") {
                 navigate("/teacher-details");
             }
-    
+
             setTimeout(() => {
                 setLoading(false);
                 navigate('/home');
             }, 1500);
-    
+
         } catch (err: any) {
             setError(err.message);
             setLoading(false);
         }
     };
-    
+
 
     const handleForgetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -148,11 +148,12 @@ const Login: React.FC = () => {
 
         try {
             const url = formData?.userType === "Student"
-                ? "https://localhost:5000/api/students/forgetPassword"
+                ? "http://localhost:5000/api/students/forgetPassword"
                 : formData?.userType === "Teacher"
-                ? "https://localhost:5000/api/teachers/forgetPassword"
-                : "";
-            
+                    ? "http://localhost:5000/api/teachers/forgetPassword"
+                    : "";
+
+
             if (!url) {
                 setError("Invalid user type");
                 setLoading(false);
@@ -164,7 +165,7 @@ const Login: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, newPassword: newPassword }),
+                body: JSON.stringify({ userType: formData.userType, phone: formData.phone, newPassword: formData.newPassword }),
             });
 
 
@@ -197,7 +198,7 @@ const Login: React.FC = () => {
         setFormData({ ...formData, [name]: value });
     }
     const handleChange = (e: any, index?: number) => {
-        
+
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
@@ -252,6 +253,7 @@ const Login: React.FC = () => {
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
+                                    name="newPassword"
                                     value={formData.newPassword}
                                     onChange={handleChange}
                                     required
@@ -267,6 +269,7 @@ const Login: React.FC = () => {
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
+                                    name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
