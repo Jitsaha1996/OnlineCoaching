@@ -38,6 +38,7 @@ const ClassDetails: React.FC = () => {
     const [classes, setClasses] = useState<IClass[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [classNameToDelete, setClassNameToDelete] = useState<string>("");
+    const [classIdToEdit, setClassIdToEdit] = useState<string | null | undefined>("");
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(5);
     const [openAddClass, setOpenAddClass] = React.useState(false);
@@ -48,7 +49,7 @@ const ClassDetails: React.FC = () => {
         classDescription: "",
         boards: [] as IBoard[],
     });
-    const fetchClasses = async () => {
+    const fetchClasses = async (): Promise<void> => {
         try {
             const response = await fetch('http://localhost:5000/api/class/');
             if (!response.ok) {
@@ -92,6 +93,7 @@ const ClassDetails: React.FC = () => {
             classDescription: classToEdit.classDescription,
             boards: classToEdit.boards || [],
         });
+        setClassIdToEdit(classToEdit._id);
         setOpenEditClass(true);
     };
     const handleCloseEditClass = () => {
@@ -171,10 +173,10 @@ const ClassDetails: React.FC = () => {
         }
     };
 
-    const handleEdit = async () => {
+    const handleEdit = async (classId: string | null | undefined) => {
         try {
 
-            const response = await fetch(`http://localhost:5000/api/class/edit`, {
+            const response = await fetch(`http://localhost:5000/api/class/edit/${classId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -187,6 +189,11 @@ const ClassDetails: React.FC = () => {
             if (!response.ok) {
                 throw new Error('Failed to update class');
             }
+            setFormData({
+                className: "",
+                classDescription: "",
+                boards: [] as IBoard[],
+            });
             await fetchClasses();
             handleCloseEditClass();
         } catch (err) {
@@ -274,7 +281,7 @@ const ClassDetails: React.FC = () => {
                         component: 'form',
                         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
                             event.preventDefault();
-                            handleEdit();
+                            handleEdit(classIdToEdit);
                             handleCloseEditClass();
                         },
                     },
