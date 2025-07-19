@@ -13,6 +13,7 @@ import { Payment } from './Payment';
 import { Qualifications } from './Qualifications';
 import { AdminDetails } from './AdminDetails';
 import StudentDetailsAdmin from './StudentDetailsAdmin';
+import ClassDetailsAdmin from './ClassDetailsAdmin';
 // import AdminRegistration from './AdminRegistration'; // Import the new component
 // import SeatConfirmation from './SeatConfirmation';
 // import SeatDetails from './SeatDetails';
@@ -85,6 +86,7 @@ const AdminPanel: React.FC = () => {
                     <StyledTab label="Student Details" />
                     <StyledTab label="Teacher Details" />
                     <StyledTab label="Student Payment" />
+                    <StyledTab label="Class Details" />
                     <StyledTab label="Qualification" />
                     <StyledTab label="Notes" />
                     <StyledTab label="Admin Details" />
@@ -95,8 +97,9 @@ const AdminPanel: React.FC = () => {
                 {activeTab === 0 && <Typography variant="h6"><StudentDetailsAdmin/></Typography>}
                 {activeTab === 1 && <Typography variant="h6"><TeacherDetailsAdmin/></Typography>}
                 {activeTab === 2 && <Typography variant="h6"><Payment/></Typography>}
-                {activeTab === 3 && <Typography variant="h6"><Qualifications/></Typography>}
-                {activeTab === 4 && <Typography variant="h6"><AdminDetails /></Typography>}
+                {activeTab === 3 && <Typography variant="h6"><ClassDetailsAdmin/></Typography>}
+                {activeTab === 4 && <Typography variant="h6"><Qualifications/></Typography>}
+                {activeTab === 5 && <Typography variant="h6"><AdminDetails/></Typography>}
                 {/* {activeTab === 5 && <Typography variant="h6"><Announcement/></Typography>} */}
                
             </TabContent>

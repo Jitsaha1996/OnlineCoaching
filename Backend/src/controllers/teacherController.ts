@@ -159,3 +159,24 @@ export const editTeachers = asyncHandler(async (req: Request, res: Response) => 
     throw new Error("Error Occurred");
   }
 });
+
+
+export const getActiveTeachers = asyncHandler(async (req: any, res: any) => {
+  try {
+    const activeTeachers = await Teacher.find({ isArchived: false });
+
+    if (!activeTeachers.length) {
+      return res.status(204).json({ message: "No active teachers found" });
+    }
+
+    const filteredTeachers = activeTeachers.map((teacher) => ({
+      TeacherID: teacher._id,
+      TeacherName: teacher.tName,
+      Teacherphone: teacher.phone,
+      Teacheremail: teacher.email,
+    }));
+    res.status(200).json(filteredTeachers);
+  } catch (error: any) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
