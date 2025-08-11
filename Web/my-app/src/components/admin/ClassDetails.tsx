@@ -26,14 +26,24 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import SearchIcon from '@mui/icons-material/Search';
 import theme from '../../theme';
-import { useForm, Controller } from "react-hook-form";
 
 import { IClass, IBoard } from '../../common/IClass';
-
+import { baseURL } from '../../common/constant';
 
 
 
 const ClassDetails: React.FC = () => {
+    interface ClassFormData {
+        className: string;
+        classDescription?: string | undefined;
+        boards: IBoard[];
+    }
+    const initialFormData: ClassFormData = {
+        className: "",
+        classDescription: "",
+        boards: [],
+    };
+
     const [allClasses, setAllClasses] = useState<IClass[]>([]);
     const [classes, setClasses] = useState<IClass[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -41,17 +51,13 @@ const ClassDetails: React.FC = () => {
     const [classIdToEdit, setClassIdToEdit] = useState<string | null | undefined>("");
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-    const [openAddClass, setOpenAddClass] = React.useState(false);
-    const [openEditClass, setOpenEditClass] = React.useState(false);
-    const [openDeleteClass, setOpenDeleteClass] = React.useState(false);
-    const [formData, setFormData] = useState<any>({
-        className: "",
-        classDescription: "",
-        boards: [] as IBoard[],
-    });
+    const [openAddClass, setOpenAddClass] = useState<boolean>(false);
+    const [openEditClass, setOpenEditClass] = useState<boolean>(false);
+    const [openDeleteClass, setOpenDeleteClass] = useState<boolean>(false);
+    const [formData, setFormData] = useState<ClassFormData>(initialFormData);
     const fetchClasses = async (): Promise<void> => {
         try {
-            const response = await fetch('http://localhost:5000/api/class/');
+            const response = await fetch(`${baseURL}/class/`);
             if (!response.ok) {
                 throw new Error('Failed to fetch classes');
             }
@@ -72,23 +78,26 @@ const ClassDetails: React.FC = () => {
         fetchClasses();
     }, []);
 
-    const handleChange = (e: any, index?: number) => {
-        console.log("input element", e);
+    const handleChange = (e: any) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
+
 
     const handleClickOpenAddClass = () => {
         setOpenAddClass(true);
     };
     const handleCloseAddClass = () => {
+        setFormData(initialFormData);
+        
         setOpenAddClass(false);
     };
 
     const handleClickOpenEditClass = (classToEdit: IClass) => {
         setFormData({
-            _id: classToEdit._id,
             className: classToEdit.className,
             classDescription: classToEdit.classDescription,
             boards: classToEdit.boards || [],
@@ -145,18 +154,14 @@ const ClassDetails: React.FC = () => {
 
     };
 
-    const handleAddClass = async (newClass: {
-        className: string,
-        classDescription: string,
-        boards: IBoard[],
-    }) => {
+    const handleAddClass = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/class/add', {
+            const response = await fetch(`${baseURL}/class/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newClass),
+                body: JSON.stringify(formData),
 
             });
             if (!response.ok) throw new Error('Failed to add class');
@@ -176,7 +181,7 @@ const ClassDetails: React.FC = () => {
     const handleEdit = async (classId: string | null | undefined) => {
         try {
 
-            const response = await fetch(`http://localhost:5000/api/class/edit/${classId}`, {
+            const response = await fetch(`${baseURL}/class/edit/${classId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,7 +208,7 @@ const ClassDetails: React.FC = () => {
 
     const handleDelete = async (className: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/class/delete/${className}`, {
+            const response = await fetch(`${baseURL}/class/delete/${className}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,7 +235,7 @@ const ClassDetails: React.FC = () => {
                         component: 'form',
                         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
                             event.preventDefault();
-                            handleAddClass(formData);
+                            handleAddClass();
                             handleCloseAddClass();
                         },
                     },
@@ -307,7 +312,6 @@ const ClassDetails: React.FC = () => {
                     />
                     <TextField
                         autoFocus
-                        required
                         margin="dense"
                         id="classDescription"
                         name="classDescription"
@@ -332,7 +336,7 @@ const ClassDetails: React.FC = () => {
                         component: 'form',
                         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
                             event.preventDefault();
-                            handleDelete(formData);
+                            handleDelete(formData.className);
                             handleCloseDeleteClass();
                         },
                     },
@@ -371,7 +375,6 @@ const ClassDetails: React.FC = () => {
                 <Table sx={{ minWidth: 500 }} aria-label="student table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
                             <TableCell>Class Name</TableCell>
                             <TableCell>Class Description</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -383,7 +386,6 @@ const ClassDetails: React.FC = () => {
                             : classes
                         ).map((Class) => (
                             <TableRow key={Class._id}>
-                                <TableCell>{Class._id}</TableCell>
                                 <TableCell>{Class.className}</TableCell>
                                 <TableCell>{Class.classDescription}</TableCell>
                                 <TableCell align="right">
