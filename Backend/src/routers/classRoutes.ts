@@ -8,6 +8,7 @@ import {
     deleteClass,
     editClassBoards,
     editClassSubject,
+    deleteBoard,
 } from '../controllers/classController';
 import { protect } from '../middleweres/authMiddlewere';
 /**
@@ -202,24 +203,7 @@ import { protect } from '../middleweres/authMiddlewere';
  *                   example: "8"
  *       400:
  *         description: Bad request, invalid input
- * /api/class/delete/{className}:
- *   delete:
- *     summary: Delete class
- *     description: Admin can delete a class.
- *     tags:
- *       - Class
- *     parameters:
- *       - in: path
- *         name: className
- *         required: true
- *         schema:
- *           type: string
- *         example: "10"
- *     responses:
- *       200:
- *         description: Class successfully deleted
- *       400:
- *         description: Bad request, invalid input
+
  * /api/class/edit/{id}:
  *   put:
  *     summary: Edit class
@@ -440,8 +424,8 @@ import { protect } from '../middleweres/authMiddlewere';
  *         description: Class with the given name was not found
  *       500:
  *         description: Internal server error
-  * /api/class/editsubject/{classId}/{boardName}:
- *   post:
+ * /api/class/editsubject/{classId}/{boardName}:
+ *   put:
  *     summary: Edit subjects of a specific board within a class
  *     description: Admin can update the subjects of a specific board in a given class.
  *     tags:
@@ -528,13 +512,60 @@ import { protect } from '../middleweres/authMiddlewere';
  *         description: Board with the given name not found
  *       500:
  *         description: Internal server error
- 
+ * /api/class/delete/{className}:
+ *   delete:
+ *     summary: Delete class
+ *     description: Admin can delete a class.
+ *     tags:
+ *       - Class
+ *     parameters:
+ *       - in: path
+ *         name: className
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "10"
+ *     responses:
+ *       200:
+ *         description: Class successfully deleted
+ *       400:
+ *         description: Bad request, invalid input
+ * /api/class/deleteboard/{className}/{boardName}:
+ *   delete:
+ *     summary: Delete a board from a class
+ *     description: Admin can delete a specific board from a class.
+ *     tags:
+ *       - Class
+ *     parameters:
+ *       - in: path
+ *         name: className
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "BTech"
+ *       - in: path
+ *         name: boardName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "AICTE"
+ *     responses:
+ *       200:
+ *         description: Board deleted successfully
+ *       400:
+ *         description: Bad request, invalid input
+ *       404:
+ *         description: Class or board not found
+ *       500:
+ *         description: Internal server error
+ * 
  */
-router.route('/add').post(protect,addClass);
-router.route('/').get(protect,getAllClass);
+router.route('/add').post(addClass);
+router.route('/').get(getAllClass);
 router.route('/edit/:id').put(protect,editClass);    
 router.route('/getone/:className').get(protect,getClass);      
 router.route('/delete/:className').delete(protect,deleteClass);
 router.route('/editboards/:className').put(protect,editClassBoards);
-router.route('/editsubject/:classId/:boardName').post(protect,editClassSubject);
+router.route('/editsubject/:classId/:boardName').put(protect,editClassSubject);
+router.route('/deleteboard/:className/:boardName').delete(protect,deleteBoard );
 export default router;
