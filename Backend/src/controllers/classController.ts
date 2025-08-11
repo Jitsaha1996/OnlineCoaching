@@ -174,6 +174,23 @@ export const deleteClass = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error in deleting class', error });
     }
 };
+// Delete a board by className and boardName
+export const deleteBoard = async (req: any, res: any) => {
+    try {
+        const { className, boardName } = req.params;
+        const classToUpdate = await Class.findOne({ className });
+        if (!classToUpdate) {
+            return res.status(404).json({ message: `${className} not found` });
+        }
 
+        classToUpdate.boards = classToUpdate.boards.filter(board => board.boardName !== boardName);
+        await classToUpdate.save();
+
+        res.status(200).json({ message: `Board ${boardName} deleted from class ${className}` });
+    } catch (error) {       
+        res.status(500).json({ message: 'Error deleting board', error });
+    }       
+
+};
 
  

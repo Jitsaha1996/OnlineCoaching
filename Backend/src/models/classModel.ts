@@ -39,7 +39,7 @@ const classSchemaTS: Schema<IClass> = new mongoose.Schema({
     required: false,
   },
   boards: [boardSchema]
-}, {
+}, {_id: true,
   timestamps: true,
 });
 
