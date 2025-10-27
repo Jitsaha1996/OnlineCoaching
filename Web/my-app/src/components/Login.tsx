@@ -18,8 +18,10 @@ import {
     Select,
     MenuItem,
     FormHelperText,
+    InputAdornment,
+    IconButton,
 } from '@mui/material';
-
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Toaster from '../Utils/Toaster';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,6 +29,7 @@ import { setStudent } from '../redux/studentsSlice';
 import { RootState } from '../redux/store';
 import { IStudents } from '../common/IStudents';
 import { ITeachers } from '../common/ITeachers';
+
 const StyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -38,9 +41,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
     boxShadow: theme.shadows[3],
 }));
 
-
 const Login: React.FC = () => {
-
     const [userType, setuserType] = useState('');
     const userTypeOptions = ["Student", "Teacher"];
     const [error, setError] = useState('');
@@ -53,14 +54,18 @@ const Login: React.FC = () => {
     const [toasterMessage, setToasterMessage] = useState('');
     const [toasterSeverity, setToasterSeverity] = useState<'success' | 'error'>('success');
     const studentsData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
+
     const [formData, setFormData] = useState<any>({
         password: "",
-        //  email: "",
         phone: "",
         userType: "",
         newPassword: "",
         confirmPassword: ""
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         if (studentsData) {
@@ -134,7 +139,6 @@ const Login: React.FC = () => {
         }
     };
 
-
     const handleForgetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -153,7 +157,6 @@ const Login: React.FC = () => {
                     ? "http://localhost:5000/api/teachers/forgetPassword"
                     : "";
 
-
             if (!url) {
                 setError("Invalid user type");
                 setLoading(false);
@@ -167,7 +170,6 @@ const Login: React.FC = () => {
                 },
                 body: JSON.stringify({ userType: formData.userType, phone: formData.phone, newPassword: formData.newPassword }),
             });
-
 
             if (!response.ok) {
                 setToasterMessage("Error updating password");
@@ -183,25 +185,23 @@ const Login: React.FC = () => {
             setTimeout(() => {
                 setIsForgetPassword(false);
                 setLoading(false);
-                navigate('/login'); // Redirect to login page
+                navigate('/login');
             }, 1500);
-
 
         } catch (err: any) {
             setError(err.message);
             setLoading(false);
         }
     };
+
     const handleChangeSelect = (e: any) => {
-        console.log("input element", e);
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-    }
-    const handleChange = (e: any, index?: number) => {
+    };
 
+    const handleChange = (e: any) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-
     };
 
     return (
@@ -249,7 +249,7 @@ const Login: React.FC = () => {
                                 />
                                 <TextField
                                     label="New Password"
-                                    type="password"
+                                    type={showNewPassword ? "text" : "password"}
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
@@ -258,6 +258,15 @@ const Login: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={() => setShowNewPassword(!showNewPassword)}>
+                                                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                     sx={{
                                         transition: '0.3s',
                                         '&:hover': { transform: 'scale(1.02)' },
@@ -265,7 +274,7 @@ const Login: React.FC = () => {
                                 />
                                 <TextField
                                     label="Confirm New Password"
-                                    type="password"
+                                    type={showConfirmPassword ? "text" : "password"}
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
@@ -274,6 +283,15 @@ const Login: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                     sx={{
                                         transition: '0.3s',
                                         '&:hover': { transform: 'scale(1.02)' },
@@ -297,7 +315,6 @@ const Login: React.FC = () => {
                                                 {option}
                                             </MenuItem>
                                         ))}
-
                                     </Select>
                                     <FormHelperText>Required</FormHelperText>
                                 </FormControl>
@@ -307,7 +324,6 @@ const Login: React.FC = () => {
                                     name='phone'
                                     fullWidth
                                     margin="normal"
-
                                     variant="outlined"
                                     value={formData.phone}
                                     onChange={handleChange}
@@ -320,7 +336,7 @@ const Login: React.FC = () => {
                                 />
                                 <TextField
                                     label="Password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name='password'
                                     fullWidth
                                     margin="normal"
@@ -329,6 +345,15 @@ const Login: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     disabled={loading}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
                                     sx={{
                                         transition: '0.3s',
                                         '&:hover': { transform: 'scale(1.02)' },
@@ -353,7 +378,6 @@ const Login: React.FC = () => {
                             >
                                 {loading ? <CircularProgress size={24} /> : (isForgetPassword ? 'Reset Password' : 'Login')}
                             </Button>
-
                         </CardActions>
                     </Box>
                     <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
@@ -380,12 +404,9 @@ const Login: React.FC = () => {
                                         </Button>
                                     </Typography>
                                 </>
-
-
                             )}
                         </Grid>
                     </Grid>
-
                 </Card>
                 <Toaster
                     open={toasterOpen}

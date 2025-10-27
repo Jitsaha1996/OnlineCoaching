@@ -11,11 +11,14 @@ import {
     CircularProgress,
     Backdrop,
     FormHelperText,
+    InputAdornment,
+    IconButton
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useRevalidator } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
 import { setStudent } from '../redux/studentsSlice';
@@ -28,7 +31,6 @@ import ImagePreview from '../Utils/ImagePreview';
 import Toaster from '../Utils/Toaster';
 import { z } from "zod";
 
-// Styled Box for form
 const StyledBox = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -37,21 +39,13 @@ const StyledBox = styled(Box)(({ theme }) => ({
     padding: theme.spacing(4),
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
-    // transition: 'transform 0.3s ease',
-    // '&:hover': {
-    //     transform: 'scale(1.02)',
-    //     boxShadow: theme.shadows ? (theme.shadows as string[])[3] : 'none',
-    //     maxWidth: '500px',
-    //     width: '90%',
-    //     margin: 'auto',
-    //     overflow: 'hidden',
-    // },
     boxShadow: theme.shadows ? (theme.shadows as string[])[3] : 'none',
     maxWidth: '700px',
     width: '90%',
     margin: 'auto',
     overflow: 'hidden',
 }));
+
 const StyledForm = styled('form')(() => ({
     width: '100%',
     display: 'flex',
@@ -175,6 +169,7 @@ const Register: React.FC = () => {
         resolver: zodResolver(baseSchema),
         mode: "onBlur",
     });
+
     const userTypeOptions = ["Student", "Teacher"];
     const classOptions = ["10th Standard", "12th Standard", "Graduation", "Others"];
     const qualificationOptions = ["B.A.", "B.Com", "B.Sc", "B.Tech", "M.A.", "M.Com", "M.Sc", "M.Tech", "Others"];
@@ -183,7 +178,7 @@ const Register: React.FC = () => {
     const theme = useTheme();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false);
     const studentData = useSelector((state: RootState) => state.students.studentsData) as IStudents | null;
     const teacherData = useSelector((state: RootState) => state.teachers.teachersData) as ITeachers | null;
     const [toasterOpen, setToasterOpen] = useState(false);
@@ -209,64 +204,51 @@ const Register: React.FC = () => {
     });
 
     const [imagePreview, setImagePreview] = useState<any>(null);
-    const [isPhotoUploaded, setIsPhotoUploaded] = useState(false); // New state for photo upload status
-
-
+    const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
-        if (studentData) {
-            navigate("/student-details");
-        }
-        else if (teacherData) {
-            navigate("/teacher-details");
-        }
-
+        if (studentData) navigate("/student-details");
+        else if (teacherData) navigate("/teacher-details");
     }, [studentData, teacherData, navigate]);
 
-    const handleChange = (e: any, index?: number) => {
-        console.log("input element", e);
+    const handleChange = (e: any) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-
     };
 
     const handleImageUpload = async (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
-            setLoading(true); // Show loading state
+            setLoading(true);
             try {
-                // Compress the image
                 const compressedFile = await imageCompression(file, {
-                    maxSizeMB: 1, // Set max size in MB
-                    maxWidthOrHeight: 1920, // Set max width or height
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
                 });
 
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setFormData({ ...formData, pic: reader.result as string });
-                    setImagePreview(reader.result); // Set preview image
+                    setImagePreview(reader.result);
                     setIsPhotoUploaded(true);
                     setToasterOpen(true);
                     setToasterMessage('Successfully Uploaded');
-                    // Show success toaster message
-                    setTimeout(() => setLoading(false), 2000); // Hide loading after 2 seconds
+                    setTimeout(() => setLoading(false), 2000);
                 };
                 reader.readAsDataURL(compressedFile);
             } catch (error) {
                 setToasterOpen(true);
-                setToasterMessage('Error uploading image:');
-                console.error('Error uploading image:', error);
+                setToasterMessage('Error uploading image');
                 setLoading(false);
             }
         }
     };
 
-    const handleCloseToaster = () => {
-        setToasterOpen(false);
-    };
+    const handleCloseToaster = () => setToasterOpen(false);
 
     const onSubmit = async () => {
-        // e.preventDefault();
         setLoading(true);
         if (formData.password !== formData.confirmPassword) {
             setToasterMessage("Passwords do not match");
@@ -277,50 +259,32 @@ const Register: React.FC = () => {
         }
 
         try {
-
-            const selectedClass =
-                formData.sclass === "Others" ? formData.sclassOther : formData.sclass;
-
-            const selectedQualification =
-                formData.qualification === "Others" ? formData.qualificationOther : formData.qualification;
-
+            const selectedClass = formData.sclass === "Others" ? formData.sclassOther : formData.sclass;
+            const selectedQualification = formData.qualification === "Others" ? formData.qualificationOther : formData.qualification;
             const user = formData.userType.toLowerCase();
-
             const apiUrl = `http://localhost:5000/api/${user}s/register`;
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    //token
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
                     isArchived: false,
-                    // userType: "student",
                     sclass: selectedClass,
                     qualification: selectedQualification,
-
                 }),
             });
 
             if (!response.ok) throw new Error('Registration failed');
             const userData = await response.json();
-            if (user === "student") {
-                dispatch(setStudent(userData)); // Dispatch user data to Redux store
-            }
-            else if (user === "teacher") {
-                dispatch(setTeacher(userData)); // Dispatch user data to Redux store
-
-            }
+            if (user === "student") dispatch(setStudent(userData));
+            else if (user === "teacher") dispatch(setTeacher(userData));
 
             setToasterMessage("Registration successful!");
             setToasterSeverity('success');
             setToasterOpen(true);
-
-            // Use a timeout to delay the navigation so that toaster can show
             setTimeout(() => {
-                setLoading(false); // Stop loading
+                setLoading(false);
                 navigate(`/${user}-details`);
             }, 1500);
 
@@ -342,7 +306,7 @@ const Register: React.FC = () => {
                 qualificationOther: "",
                 experience: "",
             });
-            setIsPhotoUploaded(false); // Reset photo upload state after registration
+            setIsPhotoUploaded(false);
         } catch (error: any) {
             setToasterMessage(error.message);
             setToasterSeverity('error');
@@ -352,34 +316,22 @@ const Register: React.FC = () => {
     };
 
     const handleChangeSelect = (e: any) => {
-        console.log("input element", e);
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-    }
+    };
 
     const handleChangeClass = (e: any) => {
-        console.log("input element", e);
         const { name, value } = e.target;
-
-        if (name === "sclass" && value !== "Others") {
-            setFormData({ ...formData, sclass: value, sclassOther: "" });
-        }
-        else {
-            setFormData({ ...formData, [name]: value });
-        }
-    }
+        if (name === "sclass" && value !== "Others") setFormData({ ...formData, sclass: value, sclassOther: "" });
+        else setFormData({ ...formData, [name]: value });
+    };
 
     const handleChangeQualification = (e: any) => {
-        console.log("input element", e);
         const { name, value } = e.target;
+        if (name === "qualification" && value !== "Others") setFormData({ ...formData, qualification: value, qualificationOther: "" });
+        else setFormData({ ...formData, [name]: value });
+    };
 
-        if (name === "qualification" && value !== "Others") {
-            setFormData({ ...formData, qualification: value, qualificationOther: "" });
-        }
-        else {
-            setFormData({ ...formData, [name]: value });
-        }
-    }
     return (
         <StyledBox>
             <Typography variant="h4" gutterBottom>
@@ -401,7 +353,7 @@ const Register: React.FC = () => {
                                     label="User Type"
                                     onChange={(e) => {
                                         field.onChange(e);
-                                        handleChangeSelect(e); // if you have a custom state update
+                                        handleChangeSelect(e);
                                     }}
                                 >
                                     {userTypeOptions.map((option) => (
@@ -414,6 +366,7 @@ const Register: React.FC = () => {
                         />
                         <FormHelperText>{errors.userType?.message}</FormHelperText>
                     </FormControl>
+
                     {formData.userType === "Student" ? (
                         <TextField
                             fullWidth
@@ -436,8 +389,7 @@ const Register: React.FC = () => {
                             onChange={handleChange}
                             required
                         />
-                    )
-                    }
+                    )}
 
                     <TextField
                         fullWidth
@@ -449,6 +401,7 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
+
                     <TextField
                         fullWidth
                         {...register("dob")} error={!!errors.dob} helperText={errors.dob?.message}
@@ -461,22 +414,7 @@ const Register: React.FC = () => {
                         InputLabelProps={{ shrink: true }}
                         required
                     />
-                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Date of Birth"
-                            value={formData.dob}
-                            onChange={(newValue) => handleChange({ target: { name: 'dob', value: newValue } })}
-                        />
-                        <TextField
-                            fullWidth
-                            {...register("dob")} error={!!errors.dob} helperText={errors.dob?.message}
-                            variant="outlined"
-                            name="dob"
-                            required
-                            value={formData.dob}
-                            onChange={handleChange}
-                        />
-                    </LocalizationProvider> */}
+
                     <TextField
                         fullWidth
                         {...register("phone")} error={!!errors.phone} helperText={errors.phone?.message}
@@ -487,27 +425,47 @@ const Register: React.FC = () => {
                         onChange={handleChange}
                         required
                     />
+
                     <TextField
                         fullWidth
                         {...register("password")} error={!!errors.password} helperText={errors.password?.message}
                         label="Password"
                         name="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         variant="outlined"
                         value={formData.password}
                         onChange={handleChange}
                         required
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
+
                     <TextField
                         fullWidth
                         {...register("confirmPassword")} error={!!errors.confirmPassword} helperText={errors.confirmPassword?.message}
                         label="Confirm Password"
                         name="confirmPassword"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         variant="outlined"
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         required
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     {formData?.userType === "Student" ? (
                         <>
